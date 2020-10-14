@@ -56,6 +56,7 @@ export function getQueryParameter (name) {
     if (results == null) {
         return '';
     } else {
+        console.log('results[1] = ',results[1]);
         return results[1] || '';
     }
 }

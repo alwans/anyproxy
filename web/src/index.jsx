@@ -13,6 +13,7 @@ import reducer from 'reducer/rootReducer';
 import HeaderMenu from 'component/header-menu';
 import RecordPanel from 'component/record-panel';
 import RecordFilter from 'component/record-filter';
+import RecordDebug from 'component/record-debug';
 import MapLocal from 'component/map-local';
 import WsListener from 'component/ws-listener';
 import RecordDetail from 'component/record-detail';
@@ -26,7 +27,8 @@ import CommonStyle from './style/common.less';
 const {
   RECORD_FILTER: RECORD_FILTER_MENU_KEY,
   MAP_LOCAL: MAP_LOCAL_MENU_KEY,
-  ROOT_CA: ROOT_CA_MENU_KEY
+  ROOT_CA: ROOT_CA_MENU_KEY,
+  DEBUG_LIST:DEBUG_LIST_MENU_KEY
 } = MenuKeyMap;
 const sagaMiddleware = createSagaMiddleware();
 const store = createStore(reducer, applyMiddleware(sagaMiddleware));
@@ -159,6 +161,7 @@ class App extends React.Component {
   }
 
   getResumeFreshDiv() {
+    // console.log('run getResumeFreshDiv');
     if (!this.props.globalStatus.showNewRecordTip) {
       return null;
     }
@@ -176,7 +179,6 @@ class App extends React.Component {
   getMiddlePanel() {
     const { activeMenuKey } = this.props.globalStatus;
     let middlePanel = null;
-
     // TODO: move the logic of resizepanel out to here, keep each panel component independant
     switch (activeMenuKey) {
       case RECORD_FILTER_MENU_KEY: {
@@ -193,6 +195,11 @@ class App extends React.Component {
         middlePanel = <DownloadRootCA />;
         break;
       }
+      
+      case DEBUG_LIST_MENU_KEY:{
+        middlePanel = <RecordDebug />;
+        break;
+      }
 
       default: {
         middlePanel = null;
@@ -204,6 +211,7 @@ class App extends React.Component {
   }
 
   componentWillReceiveProps(nextProps) {
+    // console.log('run componentWillReceiveProps');
     const { recordList: nextRecordList } = nextProps.requestRecord;
     const { recordList: currentRecordList } = this.props.requestRecord;
 
@@ -235,12 +243,14 @@ class App extends React.Component {
   }
 
   componentDidUpdate() {
+    // console.log('run componentDidUpdate');
     if (this.state.refreshing && this.recordTableRef && !this.state.loadingPrev) {
       this.recordTableRef.scrollTop = this.recordTableRef.scrollHeight;
     }
   }
 
   componentDidMount() {
+    // console.log('run componentDidMount');
     if (this.state.refreshing && this.recordTableRef) {
       this.recordTableRef.scrollTop = this.recordTableRef.scrollHeight;
     }
@@ -253,7 +263,7 @@ class App extends React.Component {
         <LeftMenu />
       </div>
     );
-
+    console.log(this.props.requestRecord.recordList);
     return (
       <div className={Style.indexWrapper} >
         {this.state.inAppMode ? null : leftMenuDiv}

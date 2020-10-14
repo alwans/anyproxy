@@ -3,6 +3,7 @@ export const RESUME_RECORDING = 'RESUME_RECORDING';
 export const SHOW_FILTER = 'SHOW_FILTER';
 export const HIDE_FILTER = 'HIDE_FILTER';
 export const UPDATE_FILTER = 'UPDATE_FILTER';
+export const UPDATE_DEBUG_FILTER = 'UPDATE_DEBUG_FILTER';
 export const SHOW_MAP_LOCAL = 'SHOW_MAP_LOCAL';
 export const HIDE_MAP_LOCAL = 'HIDE_MAP_LOCAL';
 export const FETCH_DIRECTORY = 'FETCH_DIRECTORY'; // fetch the directory
@@ -31,6 +32,14 @@ export const UPDATE_IS_ROOTCA_EXISTS = 'UPDATE_IS_ROOTCA_EXISTS';
 export const UPDATE_SHOW_NEW_RECORD_TIP = 'UPDATE_SHOW_NEW_RECORD_TIP';
 // update if currently loading the record from server
 export const UPDATE_FETCHING_RECORD_STATUS = 'UPDATE_FETCHING_RECORD_STATUS';
+
+export const SHOW_DEBUG = 'SHOW_DEBUG';
+
+export function showDebug(){
+  return {
+    type:SHOW_DEBUG
+  }
+}
 
 export function stopRecording() {
   return {
@@ -61,6 +70,13 @@ export function updateFilter(filterStr) {
     type: UPDATE_FILTER,
     data: filterStr
   };
+}
+
+export function updateDebugFilter(debugFilterStr){
+  return {
+    type:UPDATE_DEBUG_FILTER,
+    data:debugFilterStr
+  } 
 }
 
 export function showMapLocal() {

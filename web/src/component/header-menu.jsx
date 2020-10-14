@@ -271,7 +271,7 @@ class HeaderMenu extends React.Component {
               <div className={Style.tipIcon} >
                 <InlineSVG src={require('svg-inline-loader!assets/tip.svg')} />
               </div>
-              <span>Proxy Info</span>
+              <span>Proxy Info-wl</span>
             </a>
           </Popover>
         </div>

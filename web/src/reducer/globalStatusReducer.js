@@ -8,6 +8,7 @@ const defaultStatus = {
   interceptHttpsFlag: false,
   globalProxyFlag: false, // is global proxy now
   filterStr: '',
+  debugFilterStr:'',
   directory: [],
   lastActiveRecordId: -1,
   currentActiveRecordId: -1,
@@ -29,6 +30,7 @@ import {
   SHOW_FILTER,
   HIDE_FILTER,
   UPDATE_FILTER,
+  UPDATE_DEBUG_FILTER,
   UPDATE_LOCAL_DIRECTORY,
   SHOW_MAP_LOCAL,
   HIDE_MAP_LOCAL,
@@ -44,7 +46,8 @@ import {
   UPDATE_APP_VERSION,
   UPDATE_IS_ROOTCA_EXISTS,
   UPDATE_SHOW_NEW_RECORD_TIP,
-  UPDATE_FETCHING_RECORD_STATUS
+  UPDATE_FETCHING_RECORD_STATUS,
+  SHOW_DEBUG
 } from 'action/globalStatusAction';
 
 // The map to save the mapping relationships of the path and it's location in the tree node
@@ -110,6 +113,18 @@ function requestListReducer(state = defaultStatus, action) {
     case UPDATE_FILTER: {
       const newState = Object.assign({}, state);
       newState.filterStr = action.data;
+      return newState;
+    }
+
+    case UPDATE_DEBUG_FILTER:{
+      const newState = Object.assign({},state);
+      newState.debugFilterStr = action.data;
+      return newState;
+    }
+    
+    case SHOW_DEBUG:{
+      const newState = Object.assign({},state);
+      newState.activeMenuKey = MenuKeyMap.DEBUG_LIST;
       return newState;
     }
 

@@ -35,6 +35,7 @@ const getFilterReg = function (filterStr) {
 };
 
 self.addEventListener('message', (e) => {
+  console.log('6666666666');
   const data = JSON.parse(e.data);
   const { limit, currentData, nextData, filterStr } = data;
   const filterReg = getFilterReg(filterStr);

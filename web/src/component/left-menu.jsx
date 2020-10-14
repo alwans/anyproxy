@@ -12,7 +12,8 @@ import ClassBind from 'classnames/bind';
 
 import {
   showFilter,
-  showRootCA
+  showRootCA,
+  showDebug
 } from 'action/globalStatusAction';
 
 import { MenuKeyMap } from 'common/constant';
@@ -20,7 +21,8 @@ import { MenuKeyMap } from 'common/constant';
 const StyleBind = ClassBind.bind(Style);
 const {
   RECORD_FILTER: RECORD_FILTER_MENU_KEY,
-  ROOT_CA: ROOT_CA_MENU_KEY
+  ROOT_CA: ROOT_CA_MENU_KEY,
+  DEBUG_LIST:DEBUG_LIST_MENU_KEY
 } = MenuKeyMap;
 
 class LeftMenu extends React.Component {
@@ -34,6 +36,7 @@ class LeftMenu extends React.Component {
     // this.showMapLocal = this.showMapLocal.bind(this);
     this.showFilter = this.showFilter.bind(this);
     this.showRootCA = this.showRootCA.bind(this);
+    this.showDebug = this.showDebug.bind(this);
   }
 
   static propTypes = {
@@ -52,6 +55,10 @@ class LeftMenu extends React.Component {
   showRootCA() {
     this.props.dispatch(showRootCA());
   }
+  showDebug(){
+    // console.log('debug');
+    this.props.dispatch(showDebug());
+  }
 
   render() {
     const { filterStr, activeMenuKey, recording } = this.props.globalStatus;
@@ -63,6 +70,10 @@ class LeftMenu extends React.Component {
 
     const rootCAMenuStyle = StyleBind('menuItem', {
       active: activeMenuKey === ROOT_CA_MENU_KEY
+    });
+    
+    const debugListStyle = StyleBind('menuItem',{
+      active: activeMenuKey === DEBUG_LIST_MENU_KEY
     });
 
     const wrapperStyle = StyleBind('wrapper', { inApp: this.state.inAppMode });
@@ -108,6 +119,17 @@ class LeftMenu extends React.Component {
               <InlineSVG src={require('svg-inline-loader!assets/download.svg')} />
             </span>
             <span>RootCA</span>
+          </a>
+          <a
+            className={debugListStyle}
+            href="javascript:void(0)"
+            title="debug"
+            onClick={this.showDebug}
+          >
+            <span className={Style.debugIcon}>
+              <InlineSVG src={require('svg-inline-loader!assets/debug.svg')} />
+            </span>
+            <span>debug</span>
           </a>
         </div>
         <div className={Style.bottom} >

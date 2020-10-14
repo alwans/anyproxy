@@ -6,6 +6,7 @@
 import React, { PropTypes } from 'react';
 import { message } from 'antd';
 import { initWs } from 'common/wsUtil';
+import { MenuKeyMap } from 'common/constant';
 import { updateWholeRequest } from 'action/recordAction';
 import {
   updateShouldClearRecord,
@@ -191,16 +192,24 @@ class WsListener extends React.Component {
 
   render() {
     this.initWs();
-    const { displayRecordLimit: limit, filterStr } = this.props.globalStatus;
-
-    const msg = {
-      type: 'updateQuery',
-      limit,
-      filterStr
-    };
-
-    myRecordWorker.postMessage(JSON.stringify(msg));
-
+    const { displayRecordLimit: limit, filterStr,debugFilterStr } = this.props.globalStatus;
+    if(this.props.globalStatus.activeMenuKey === MenuKeyMap.DEBUG_LIST){
+      const msg = {
+        type: 'updateQuery',
+        limit,
+        debugFilterStr
+      };
+      console.log('msg: ',msg);
+      myRecordWorker.postMessage(JSON.stringify(msg));
+    }else{
+      const msg = {
+        type: 'updateQuery',
+        limit,
+        filterStr
+      };
+      console.log('msg: ',msg);
+      myRecordWorker.postMessage(JSON.stringify(msg));
+    }
     return <div></div>;
   }
 }
