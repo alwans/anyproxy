@@ -5,7 +5,7 @@
 
 import React, { PropTypes } from 'react';
 import ClassBind from 'classnames/bind';
-import { Menu, Spin } from 'antd';
+import { Menu, Spin,notification, Button,Input,Tag } from 'antd';
 import ModalPanel from 'component/modal-panel';
 import RecordRequestDetail from 'component/record-request-detail';
 import RecordResponseDetail from 'component/record-response-detail';
@@ -28,7 +28,8 @@ class RecordDetail extends React.Component {
     this.state = {
       pageIndex: PageIndexMap.REQUEST_INDEX
     };
-
+    this.onSave = this.onSave.bind(this);
+    this.onEdit = this.onEdit.bind(this);
     this.onMenuChange = this.onMenuChange.bind(this);
   }
 
@@ -36,6 +37,15 @@ class RecordDetail extends React.Component {
     dispatch: PropTypes.func,
     globalStatus: PropTypes.object,
     requestRecord: PropTypes.object
+  }
+  onSave(){
+    this.notify('SAVE SUCCESS', 'success')
+  }
+  onEdit(){
+    this.notify('START EDIT','success');
+  }
+  notify(message, type = 'info', duration = 1.6, opts = {}) {
+    notification[type]({ message, duration, ...opts })
   }
 
   onClose() {
@@ -53,7 +63,7 @@ class RecordDetail extends React.Component {
   }
 
   getRequestDiv(recordDetail) {
-    return <RecordRequestDetail recordDetail={recordDetail} />;
+    return <RecordRequestDetail recordDetail={recordDetail}/>;
   }
 
   getResponseDiv(recordDetail) {
@@ -94,12 +104,24 @@ class RecordDetail extends React.Component {
 
     return (
       <div className={Style.wrapper} >
-        <Menu onClick={this.onMenuChange} mode="horizontal" selectedKeys={[this.state.pageIndex]} >
+        <Menu onClick={this.onMenuChange} style={{ display: 'inline-flex' }} mode="horizontal" selectedKeys={[this.state.pageIndex]} >
           <Menu.Item key={PageIndexMap.REQUEST_INDEX}>Request</Menu.Item>
           <Menu.Item key={PageIndexMap.RESPONSE_INDEX}>Response</Menu.Item>
           {this.hasWebSocket(recordDetail) ? websocketMenu : null}
         </Menu>
+        <div className={Style.tagWarpper}>
+          <Tag color="#2db7f5">rewrite</Tag>
+          <Tag color="#87d068">local map</Tag>
+          <Tag color="#D8C440">remote</Tag>
+        </div>
+        <div className={Style.editWrapper}>
+          <Button className={Style.btn} onClick={this.onEdit}>edit</Button>
+          <Button className={Style.btn} onClick={this.onSave}>save</Button>
+        </div>
         <div className={Style.detailWrapper} >
+          {fetchingRecord ? this.getLoaingDiv() : getMenuBody()}
+        </div>
+        <div className={Style.editDetailWrapper} >
           {fetchingRecord ? this.getLoaingDiv() : getMenuBody()}
         </div>
       </div>

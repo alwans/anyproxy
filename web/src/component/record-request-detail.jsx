@@ -5,7 +5,7 @@
 
 import React, { PropTypes } from 'react';
 import ClassBind from 'classnames/bind';
-import { Menu, Table, notification, Spin } from 'antd';
+import { Menu, Table, notification, Spin, Button,Input } from 'antd';
 import clipboard from 'clipboard-js'
 import JsonViewer from 'component/json-viewer';
 import ModalPanel from 'component/modal-panel';
@@ -15,6 +15,8 @@ import { curlify } from 'common/curlUtil';
 
 import Style from './record-detail.less';
 import CommonStyle from '../style/common.less';
+import text from 'body-parser/lib/types/text';
+import TextArea from 'antd/lib/input/TextArea';
 
 const StyleBind = ClassBind.bind(Style);
 const PageIndexMap = {
@@ -47,7 +49,8 @@ class RecordRequestDetail extends React.Component {
       return (
         <li key={key} className={Style.liItem} >
           <strong>{key} : </strong>
-          <span>{targetObj[key]}</span>
+          {/* <span>{targetObj[key]}</span> */}
+          <span><Input defaultValue={targetObj[key]} /></span>
         </li>
       );
     });
@@ -156,11 +159,14 @@ class RecordRequestDetail extends React.Component {
           <ul className={Style.ulItem} >
             <li className={Style.liItem} >
               <strong>Method:</strong>
-              <span>{recordDetail.method} </span>
+              {/* <span>{recordDetail.method} </span> */}
+              <span><Input defaultValue={recordDetail.method} /></span>
+
             </li>
             <li className={Style.liItem} >
               <strong>URL:</strong>
-              <span onClick={this.onSelectText} >{`${protocol}://${host}${path}`} </span>
+              {/* <span onClick={this.onSelectText} >{`${protocol}://${host}${path}`} </span> */}
+              <span><Input defaultValue={`${protocol}://${host}${path}`} /></span>
             </li>
             <li className={Style.liItem} >
               <strong>Protocol:</strong>

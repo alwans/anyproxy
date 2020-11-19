@@ -50,6 +50,7 @@ function* doFetchRecordBody(recordId) {
   // const recordBody = { id: recordId };
   yield put(updateFechingRecordStatus(true));
   const recordBody = yield call(getJSON, '/fetchBody', { id: recordId });
+  console.log('recordBody = ',recordBody);
   if (recordBody.method && recordBody.method.toLowerCase() === 'websocket') {
     recordBody.wsMessages = yield call(getJSON, '/fetchWsMessages', { id: recordId});
   }
