@@ -19,10 +19,13 @@ import text from 'body-parser/lib/types/text';
 import TextArea from 'antd/lib/input/TextArea';
 
 const StyleBind = ClassBind.bind(Style);
+
+const EditStyle = StyleBind('liItem',{editLiItem:true});
 const PageIndexMap = {
   REQUEST_INDEX: 'REQUEST_INDEX',
   RESPONSE_INDEX: 'RESPONSE_INDEX'
 };
+const add_btn_style=StyleBind('btn',{add_btn:true});
 
 // the maximum length of the request body to decide whether to offer a download link for the request body
 const MAXIMUM_REQ_BODY_LENGTH = 10000;
@@ -31,13 +34,24 @@ class RecordRequestDetail extends React.Component {
   constructor() {
     super();
     this.state = {
+      isEdit:false
     };
 
     this.copyCurlCmd = this.copyCurlCmd.bind(this);
   }
 
   static propTypes = {
-    requestRecord: PropTypes.object
+    requestRecord: PropTypes.object,
+    onChange:PropTypes.func,
+    onAddHeader:PropTypes.func,
+    isEdit:PropTypes.bool
+  }
+  componentWillReceiveProps(nextProps){
+    // console.log('77777777777777777777777777'); //组件调用2次，这个方法只执行一次，没明白原因
+    // console.log(nextProps);
+    this.setState({
+      isEdit:nextProps.isEdit||false
+    });
   }
 
   onSelectText(e) {
@@ -45,12 +59,16 @@ class RecordRequestDetail extends React.Component {
   }
 
   getLiDivs(targetObj) {
+    let dataType = this.props.recordDetail.isEdit?1:0;
+    let pos=-1;
     const liDom = Object.keys(targetObj).map((key) => {
+      targetObj[key]==''?pos++:null;
       return (
-        <li key={key} className={Style.liItem} >
-          <strong>{key} : </strong>
-          {/* <span>{targetObj[key]}</span> */}
-          <span><Input defaultValue={targetObj[key]} /></span>
+        <li key={key} className={this.props.isEdit?EditStyle:Style.liItem} >
+          { targetObj[key]==''?<strong><Input name={`${pos}-default`} style={{'width':'50px'}} onChange={this.props.onChange}></Input> : </strong>:<strong>{key} : </strong>}
+          {this.props.isEdit? <span><Input defaultValue={targetObj[key]} onChange={this.props.onChange} 
+            name={`${dataType}-${key}`} /></span>:
+            <span>{targetObj[key]}</span>}          
         </li>
       );
     });
@@ -110,7 +128,8 @@ class RecordRequestDetail extends React.Component {
   }
 
   getReqBodyDiv() {
-    const { recordDetail } = this.props;
+    // console.log(this.props);
+    const recordDetail  = this.props.recordDetail;
     const requestBody = recordDetail.reqBody;
 
     const reqDownload = <a href={`/fetchReqBody?id=${recordDetail.id}&_t=${Date.now()}`} target="_blank">download</a>;
@@ -149,6 +168,7 @@ class RecordRequestDetail extends React.Component {
     delete reqHeader.cookie; // cookie will be displayed seperately
 
     const { protocol, host, path } = recordDetail;
+    console.log('isEdit: ---> ',this.state.isEdit);
     return (
       <div>
         <div className={Style.section} >
@@ -157,18 +177,20 @@ class RecordRequestDetail extends React.Component {
           </div>
           <div className={CommonStyle.whiteSpace10} />
           <ul className={Style.ulItem} >
-            <li className={Style.liItem} >
+            <li className={this.props.isEdit?EditStyle:Style.liItem} >
               <strong>Method:</strong>
-              {/* <span>{recordDetail.method} </span> */}
-              <span><Input defaultValue={recordDetail.method} /></span>
-
+              {this.props.isEdit?<span><Input defaultValue={recordDetail.method} key='Method' onChange={this.props.onChange}/></span>:<span>{recordDetail.method} </span>}
+              {/* <span>{recordDetail.method} </span>
+              <span><Input defaultValue={recordDetail.method} /></span> */}
             </li>
-            <li className={Style.liItem} >
+            <li className={this.props.isEdit?EditStyle:Style.liItem} >
               <strong>URL:</strong>
-              {/* <span onClick={this.onSelectText} >{`${protocol}://${host}${path}`} </span> */}
-              <span><Input defaultValue={`${protocol}://${host}${path}`} /></span>
+              {this.props.isEdit?<span><Input defaultValue={`${protocol}://${host}${path}`} key='url' onChange={this.props.onChange}/></span>:
+                <span onClick={this.onSelectText} >{`${protocol}://${host}${path}`} </span>}
+              {/* <span onClick={this.onSelectText} >{`${protocol}://${host}${path}`} </span>
+              <span><Input defaultValue={`${protocol}://${host}${path}`} /></span> */}
             </li>
-            <li className={Style.liItem} >
+            <li className={this.props.isEdit?EditStyle:Style.liItem} >
               <strong>Protocol:</strong>
               <span >HTTP/1.1</span>
             </li>
@@ -187,6 +209,9 @@ class RecordRequestDetail extends React.Component {
           <div >
             <span className={CommonStyle.sectionTitle}>Header</span>
           </div>
+          {this.props.recordDetail.isEdit&& <div>
+            <Button className={Style.btn} style={{'position':'absolute','right':'0','zIndex':'9999','top':'171px'}} onClick={this.props.onAddHeader}>add</Button>
+          </div>}
           <div className={CommonStyle.whiteSpace10} />
           <ul className={Style.ulItem} >
             {this.getLiDivs(reqHeader)}
