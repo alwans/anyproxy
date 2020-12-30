@@ -12,11 +12,11 @@ import ModalPanel from 'component/modal-panel';
 import { hideRecordDetail } from 'action/recordAction';
 import { selectText } from 'common/commonUtil';
 import { curlify } from 'common/curlUtil';
-
 import Style from './record-detail.less';
 import CommonStyle from '../style/common.less';
 import text from 'body-parser/lib/types/text';
-import TextArea from 'antd/lib/input/TextArea';
+import InlineSVG from 'svg-inline-react';
+import RecordDetailBodyTable from './record-detail-body-table';
 
 const StyleBind = ClassBind.bind(Style);
 
@@ -44,7 +44,9 @@ class RecordRequestDetail extends React.Component {
     requestRecord: PropTypes.object,
     onChange:PropTypes.func,
     onAddHeader:PropTypes.func,
-    isEdit:PropTypes.bool
+    isEdit:PropTypes.bool,
+    onDeleteHeader:PropTypes.func,
+
   }
   componentWillReceiveProps(nextProps){
     // console.log('77777777777777777777777777'); //组件调用2次，这个方法只执行一次，没明白原因
@@ -55,25 +57,81 @@ class RecordRequestDetail extends React.Component {
   }
 
   onSelectText(e) {
+    console.log('123');
     selectText(e.target);
   }
 
   getLiDivs(targetObj) {
     let dataType = this.props.recordDetail.isEdit?1:0;
-    let pos=-1;
-    const liDom = Object.keys(targetObj).map((key) => {
-      targetObj[key]==''?pos++:null;
+    var liDom = Object.keys(targetObj).map((key) => {
+      let index = this.props.addHeaders.indexOf(key);
+      let flag = true;
+      if(key=='' && this.props.addHeaders.includes('')){
+        flag = false;
+      }
+      if(dataType=='1' && flag && this.props.delHeaders.includes(key)){
+        return ;
+        // return (<li key={key} className={EditStyle} >
+        //   <strong>&nbsp;</strong>
+        //   <span>&nbsp;</span>
+        // </li>);
+      }
+      var h1 = '';
+      if(index!=-1){
+        h1 = <strong><Input name={`${index}-defaultKey`} style={{'width':'50px'}} defaultValue={key} onChange={this.props.onChange}></Input>:</strong>;
+      }else{
+        h1 = <strong>{key} : </strong>
+      }
       return (
         <li key={key} className={this.props.isEdit?EditStyle:Style.liItem} >
-          { targetObj[key]==''?<strong><Input name={`${pos}-default`} style={{'width':'50px'}} onChange={this.props.onChange}></Input> : </strong>:<strong>{key} : </strong>}
+          {this.props.recordDetail.isEdit?
+            <div className={Style.deleteDiv} onClick={this.props.onDeleteHeader.bind(this,key)}>
+              <InlineSVG src={require('svg-inline-loader!assets/delete.svg')} />
+            </div>:''
+          }
+          {h1}
           {this.props.isEdit? <span><Input defaultValue={targetObj[key]} onChange={this.props.onChange} 
             name={`${dataType}-${key}`} /></span>:
             <span>{targetObj[key]}</span>}          
         </li>
       );
     });
+    let tempDom=[];
+    let copy_delHeaders = this.props.delHeaders.slice(0);
+    let copy_addHeaders = this.props.addHeaders.slice(0);
+    for(let i=0;i<copy_delHeaders.length;i++){
+      if(copy_delHeaders[i]==''){
+        copy_delHeaders.splice(i,1);
+        i--;
+      }
+  }
+    let diff_num = copy_delHeaders.length - copy_addHeaders.length;
+    if(dataType==1 && diff_num>0){
+      while(diff_num>0){
+        diff_num--;
+        tempDom.push(this.supplyLiDom(diff_num));
+      }
+    }else if(dataType==0 && diff_num<0){
+      diff_num = diff_num*-2+diff_num;
+      while(diff_num>0){
+        diff_num--;
+        tempDom.push(this.supplyLiDom(diff_num));
+      }
+    }
 
+    if(tempDom.length){
+      liDom = liDom.concat(tempDom);
+    }
     return liDom;
+  }
+
+  supplyLiDom (id){
+      return (
+        <li key={id} className={EditStyle} >
+          <strong>&nbsp;</strong>
+          <span>&nbsp;</span>
+        </li>
+      );
   }
 
   getCookieDiv(cookies) {
@@ -168,7 +226,6 @@ class RecordRequestDetail extends React.Component {
     delete reqHeader.cookie; // cookie will be displayed seperately
 
     const { protocol, host, path } = recordDetail;
-    console.log('isEdit: ---> ',this.state.isEdit);
     return (
       <div>
         <div className={Style.section} >
@@ -205,13 +262,13 @@ class RecordRequestDetail extends React.Component {
             </li>
           </ul>
         </div>
-        <div className={Style.section} >
+        <div className={Style.section} style={{'position':'relative'}}>
           <div >
-            <span className={CommonStyle.sectionTitle}>Header</span>
-          </div>
-          {this.props.recordDetail.isEdit&& <div>
-            <Button className={Style.btn} style={{'position':'absolute','right':'0','zIndex':'9999','top':'171px'}} onClick={this.props.onAddHeader}>add</Button>
+            <span className={CommonStyle.sectionTitle} >Header</span>
+            {this.props.recordDetail.isEdit&& <div>
+            <Button className={Style.btn} style={{'position':'absolute','right':'0','zIndex':'9999','top':'0px'}} onClick={this.props.onAddHeader}>add</Button>
           </div>}
+          </div>
           <div className={CommonStyle.whiteSpace10} />
           <ul className={Style.ulItem} >
             {this.getLiDivs(reqHeader)}
@@ -225,12 +282,21 @@ class RecordRequestDetail extends React.Component {
           {this.getCookieDiv(cookieString)}
         </div>
 
-        <div className={Style.section} >
+        <div className={Style.section} style={{'position':'relative'}} >
           <div >
-            <span className={CommonStyle.sectionTitle}>Body</span>
+            <span className={CommonStyle.sectionTitle} >Body</span>
+            {this.props.recordDetail.isEdit&& <div>
+            <Button className={Style.btn} style={{'position':'absolute','right':'0','zIndex':'9999','top':'0px'}}>add</Button>
+          </div>}
           </div>
           <div className={CommonStyle.whiteSpace10} />
           {this.getReqBodyDiv()}
+          <RecordDetailBodyTable
+            dataSource = {this.props.bodyItem}
+            onDelete = {this.props.tableHandleDelete}
+            handleAdd = {this.props.tabelHandleAdd}
+            onCellChange = {this.props.tableHandleCellChange}
+          />
         </div>
       </div>
     );

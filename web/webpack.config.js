@@ -106,7 +106,7 @@ module.exports = {
   plugins: [
     extractCss,
     defineProperty,
-    new UglifyJsPlugin()
+    new UglifyJsPlugin(),
   ],
   stats: {
     children: false

@@ -1,0 +1,7 @@
+<svg t="1608706731396" class="edit-icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="1154" width="50" height="50">
+    <g id="delete-icon" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd" opacity="0.5">
+        <g  fill="#e54d5d">
+            <path d="M511.634547 1024a512 512 0 1 1 512.365453-511.634547 512.219272 512.219272 0 0 1-512.365453 511.634547z m255.817273-576.027409h-511.634547a64.027409 64.027409 0 1 0 0 128.054818h511.634547a64.027409 64.027409 0 1 0 0-128.054818z" p-id="1155" fill="#e54d5d"></path>
+        </g>
+    </g>
+</svg>
