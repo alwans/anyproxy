@@ -63,65 +63,14 @@ class RecordRequestDetail extends React.Component {
 
   getLiDivs(targetObj) {
     let dataType = this.props.recordDetail.isEdit?1:0;
-    var liDom = Object.keys(targetObj).map((key) => {
-      let index = this.props.addHeaders.indexOf(key);
-      let flag = true;
-      if(key=='' && this.props.addHeaders.includes('')){
-        flag = false;
-      }
-      if(dataType=='1' && flag && this.props.delHeaders.includes(key)){
-        return ;
-        // return (<li key={key} className={EditStyle} >
-        //   <strong>&nbsp;</strong>
-        //   <span>&nbsp;</span>
-        // </li>);
-      }
-      var h1 = '';
-      if(index!=-1){
-        h1 = <strong><Input name={`${index}-defaultKey`} style={{'width':'50px'}} defaultValue={key} onChange={this.props.onChange}></Input>:</strong>;
-      }else{
-        h1 = <strong>{key} : </strong>
-      }
+    const liDom = Object.keys(targetObj).map((key) => {
       return (
-        <li key={key} className={this.props.isEdit?EditStyle:Style.liItem} >
-          {this.props.recordDetail.isEdit?
-            <div className={Style.deleteDiv} onClick={this.props.onDeleteHeader.bind(this,key)}>
-              <InlineSVG src={require('svg-inline-loader!assets/delete.svg')} />
-            </div>:''
-          }
-          {h1}
-          {this.props.isEdit? <span><Input defaultValue={targetObj[key]} onChange={this.props.onChange} 
-            name={`${dataType}-${key}`} /></span>:
-            <span>{targetObj[key]}</span>}          
+        <li key={key} className={Style.liItem} >
+          <strong>{key} : </strong>
+          <span>{targetObj[key]}</span>     
         </li>
       );
     });
-    let tempDom=[];
-    let copy_delHeaders = this.props.delHeaders.slice(0);
-    let copy_addHeaders = this.props.addHeaders.slice(0);
-    for(let i=0;i<copy_delHeaders.length;i++){
-      if(copy_delHeaders[i]==''){
-        copy_delHeaders.splice(i,1);
-        i--;
-      }
-  }
-    let diff_num = copy_delHeaders.length - copy_addHeaders.length;
-    if(dataType==1 && diff_num>0){
-      while(diff_num>0){
-        diff_num--;
-        tempDom.push(this.supplyLiDom(diff_num));
-      }
-    }else if(dataType==0 && diff_num<0){
-      diff_num = diff_num*-2+diff_num;
-      while(diff_num>0){
-        diff_num--;
-        tempDom.push(this.supplyLiDom(diff_num));
-      }
-    }
-
-    if(tempDom.length){
-      liDom = liDom.concat(tempDom);
-    }
     return liDom;
   }
 
@@ -234,20 +183,18 @@ class RecordRequestDetail extends React.Component {
           </div>
           <div className={CommonStyle.whiteSpace10} />
           <ul className={Style.ulItem} >
-            <li className={this.props.isEdit?EditStyle:Style.liItem} >
+            <li className={Style.liItem} >
               <strong>Method:</strong>
-              {this.props.isEdit?<span><Input defaultValue={recordDetail.method} key='Method' onChange={this.props.onChange}/></span>:<span>{recordDetail.method} </span>}
-              {/* <span>{recordDetail.method} </span>
-              <span><Input defaultValue={recordDetail.method} /></span> */}
+              {/* {this.props.isEdit?<span><Input defaultValue={recordDetail.method} key='Method' onChange={this.props.onChange}/></span>:<span>{recordDetail.method} </span>} */}
+              <span>{recordDetail.method} </span>
             </li>
-            <li className={this.props.isEdit?EditStyle:Style.liItem} >
+            <li className={Style.liItem} >
               <strong>URL:</strong>
-              {this.props.isEdit?<span><Input defaultValue={`${protocol}://${host}${path}`} key='url' onChange={this.props.onChange}/></span>:
-                <span onClick={this.onSelectText} >{`${protocol}://${host}${path}`} </span>}
-              {/* <span onClick={this.onSelectText} >{`${protocol}://${host}${path}`} </span>
-              <span><Input defaultValue={`${protocol}://${host}${path}`} /></span> */}
+              {/* {this.props.isEdit?<span><Input defaultValue={`${protocol}://${host}${path}`} key='url' onChange={this.props.onChange}/></span>:
+                <span onClick={this.onSelectText} >{`${protocol}://${host}${path}`} </span>} */}
+              <span onClick={this.onSelectText} >{`${protocol}://${host}${path}`} </span>
             </li>
-            <li className={this.props.isEdit?EditStyle:Style.liItem} >
+            <li className={Style.liItem} >
               <strong>Protocol:</strong>
               <span >HTTP/1.1</span>
             </li>
@@ -262,17 +209,22 @@ class RecordRequestDetail extends React.Component {
             </li>
           </ul>
         </div>
-        <div className={Style.section} style={{'position':'relative'}}>
+        <div className={Style.section}>
           <div >
             <span className={CommonStyle.sectionTitle} >Header</span>
-            {this.props.recordDetail.isEdit&& <div>
-            <Button className={Style.btn} style={{'position':'absolute','right':'0','zIndex':'9999','top':'0px'}} onClick={this.props.onAddHeader}>add</Button>
-          </div>}
           </div>
           <div className={CommonStyle.whiteSpace10} />
           <ul className={Style.ulItem} >
             {this.getLiDivs(reqHeader)}
           </ul>
+          {this.state.isEdit?
+            <RecordDetailBodyTable
+              tableType={0}
+              dataSource = {this.props.bodyItem}
+              onDelete = {this.props.tableHandleDelete}
+              handleAdd = {this.props.tabelHandleAdd}
+              onCellChange = {this.props.tableHandleCellChange}
+            />:null}
         </div>
 
         <div className={Style.section + ' ' + Style.noBorder} >
@@ -282,21 +234,20 @@ class RecordRequestDetail extends React.Component {
           {this.getCookieDiv(cookieString)}
         </div>
 
-        <div className={Style.section} style={{'position':'relative'}} >
+        <div className={Style.section} >
           <div >
             <span className={CommonStyle.sectionTitle} >Body</span>
-            {this.props.recordDetail.isEdit&& <div>
-            <Button className={Style.btn} style={{'position':'absolute','right':'0','zIndex':'9999','top':'0px'}}>add</Button>
-          </div>}
           </div>
           <div className={CommonStyle.whiteSpace10} />
           {this.getReqBodyDiv()}
-          <RecordDetailBodyTable
-            dataSource = {this.props.bodyItem}
-            onDelete = {this.props.tableHandleDelete}
-            handleAdd = {this.props.tabelHandleAdd}
-            onCellChange = {this.props.tableHandleCellChange}
-          />
+          {this.state.isEdit?
+            <RecordDetailBodyTable
+              tableType={1}
+              dataSource = {this.props.bodyItem}
+              onDelete = {this.props.tableHandleDelete}
+              handleAdd = {this.props.tabelHandleAdd}
+              onCellChange = {this.props.tableHandleCellChange}
+            />:null}
         </div>
       </div>
     );

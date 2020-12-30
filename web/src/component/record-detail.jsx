@@ -41,16 +41,11 @@ class RecordDetail extends React.Component {
       isEdit:false,  // page can be edited
       originRecordDetail:null,  //origin or Before modification record detail
       editRecordDetail:null, //modified record detail
-      addHeaders:{req:[],res:[]}, //add headers key list obj
-      delHeaders:{req:[],res:[]},  //delete headers key list obj
-      updateHeaders:{req:[],res:[]},
-      bodyItem:{req:[],res:[]}   //obj-keys:[beforData,afterData,isDelete]
+      bodyItem:{req:[],res:[]},   //obj-keys:[tableType,beforData,afterData,isDelete]
+      headersItem:{req:[],res:[]}  //obj-keys:[tableType,headerName,beforeData,afterData,isDelete]
     };
     this.onSave = this.onSave.bind(this); 
     this.onEdit = this.onEdit.bind(this); 
-    this.onChange = this.onChange.bind(this); // headers input event
-    this.onAddHeader =  this.onAddHeader.bind(this); 
-    this.onDelHeader = this.onDelHeader.bind(this); 
     this.onMenuChange = this.onMenuChange.bind(this);
     this.onClickItem = this.onClickItem.bind(this);
     this.tableHandleDelete = this.tableHandleDelete.bind(this);
@@ -81,172 +76,6 @@ class RecordDetail extends React.Component {
     // console.log('-->click item');
     // console.log(e);
     this.setState({isEdit:true});
-  }
-
-  onChange (event) {  //header value input --> onChange
-    let dataType;
-    let key;
-    let headersList;
-    let new_addHeaders = this.state.addHeaders;
-    if(event.target.name.split('-')){
-      dataType='1';
-    }else{
-      [dataType,key] = event.target.name.split('-');
-    }
-    let new_record = Object.assign(dataType=='0'? this.state.originRecordDetail :  this.state.editRecordDetail);
-    switch(this.state.pageIndex){
-      case PageIndexMap.REQUEST_INDEX:{
-        headersList = this.state.addHeaders.req;
-        let header_obj = new_record.reqHeader;
-        [headersList,header_obj] = this.headerHandler(event, headersList, header_obj);
-        if(headersList ==void 0 || header_obj == void 0){
-          return -1;
-        } 
-        new_record.reqHeader = header_obj;
-        new_addHeaders.req =  headersList;
-        break;
-      }
-      case PageIndexMap.RESPONSE_INDEX:{
-        headersList = this.state.addHeaders.res;
-        let header_obj = new_record.resHeader;
-        [headersList,header_obj] = this.headerHandler(event, headersList, header_obj);
-        if(headersList ==void 0 || header_obj == void 0){
-          return -1;
-        }
-        new_record.resHeader = header_obj;
-        new_addHeaders.res = headersList;
-        break;
-      }
-    }
-    console.log('new record--->');
-    console.log(new_record);
-    if(dataType=='0'){
-      this.setState({
-        addHeaders:new_addHeaders,
-        originRecordDetail:new_record
-      });
-    }else{
-      this.setState({
-        addHeaders:new_addHeaders,
-        editRecordDetail:new_record
-      });
-    }
-  }
-
-  headerKeyHandler(event,new_headersList,header_obj){
-    let[index,key] = event.target.name.split('-');
-    let key_value = event.target.value;
-    console.log('key_value = ',key_value);
-    let old_key_value = new_headersList[index];
-    console.log('old_key_value = ',old_key_value);
-    new_headersList[index] = key_value;
-    let old_value = header_obj[old_key_value] || '';
-    console.log('old value = ',old_value);
-    delete header_obj[old_key_value];
-    header_obj[key_value] = old_value;
-    return [new_headersList,header_obj];
-  }
-
-  headerHandler(event,headersList,header_obj){
-    let [dataType,key] = event.target.name.split('-');
-    let value = event.target.value;
-    console.log(`dataType:${dataType}, key:${key}, value:${value}`);
-    let new_addHeaders =  headersList;
-    let new_header_obj = Object.assign(header_obj);
-    if(event.target.name.includes('defaultKey')){ //处理新增header的key值更新
-      return this.headerKeyHandler(event,new_addHeaders,new_header_obj);;
-    }
-    if(key==''){
-      this.globalNotify('请先输入key值');
-      new_header_obj['']='';
-      return [new_addHeaders,new_header_obj];
-    }else{
-      new_header_obj[key] = value;
-      return [new_addHeaders,new_header_obj];
-    }
-  }
-
-  onAddHeader(){  //add header btn --> onClick
-    let new_record = Object.assign(this.state.editRecordDetail);
-    let new_addHeaders = this.state.addHeaders;
-    let new_headersList;
-    switch(this.state.pageIndex){
-      case PageIndexMap.REQUEST_INDEX:{
-        let header_obj = new_record.reqHeader;
-        new_headersList = new_addHeaders.req;
-        [new_headersList,header_obj] = this.addHeaderHandler(new_headersList,header_obj);
-        if(new_headersList==void 0 || header_obj ==  void 0){
-          return -1
-        }
-        new_record.reqHeader = header_obj;
-        new_addHeaders.req = new_headersList;
-        break;
-      }
-      case PageIndexMap.RESPONSE_INDEX:{
-        let header_obj = new_record.resHeader;
-        new_headersList = new_addHeaders.res;
-        [new_headersList,header_obj] = this.addHeaderHandler(new_headersList,header_obj);
-        if(new_headersList==void 0 || header_obj ==  void 0){
-          return -1
-        }
-        new_record.resHeader = header_obj;
-        new_addHeaders.res = new_headersList;
-        break;
-      }
-    }
-    this.setState({
-      addHeaders: new_addHeaders,
-      editRecordDetail:new_record
-    });
-  }
-
-  addHeaderHandler(new_headersList,header_obj){
-    if(new_headersList.includes('')){
-      this.globalNotify('请先输入上一个新增的key值');
-      return [];
-    }
-    let default_key_value = '';
-    header_obj[default_key_value]='';
-    new_headersList.push(default_key_value);
-    return [new_headersList,header_obj];
-  }
-
-  onDelHeader(key){  //header delete --> onClick
-    let new_delHeaders = this.state.delHeaders;
-    let new_addHeaders = this.state.addHeaders;
-    if(key==''){
-      switch(this.state.pageIndex){
-        case PageIndexMap.REQUEST_INDEX:{
-          let index = new_addHeaders.req.indexOf('');
-          new_addHeaders.req.splice(index,1);
-          break;
-        }
-        case PageIndexMap.RESPONSE_INDEX:{
-          let index = new_addHeaders.res.indexOf('');
-          new_addHeaders.res.splice(index,1);
-          break;
-        }
-      }
-      this.setState({
-        addHeaders:new_addHeaders
-      });
-    }
-    switch(this.state.pageIndex){
-      case PageIndexMap.REQUEST_INDEX:{
-        new_delHeaders.req.push(key);
-        break;
-      }
-      case PageIndexMap.RESPONSE_INDEX:{
-        new_delHeaders.res.push(key);
-        break;
-      }
-    }
-    console.log('delete was success');
-    console.log(key);
-    this.setState({
-      addHeaders:new_addHeaders,
-      delHeaders:new_delHeaders
-    });
   }
 
   tableHandleDelete = (key) => {
@@ -319,12 +148,7 @@ class RecordDetail extends React.Component {
   getRequestDiv(recordDetail) {
     return <RecordRequestDetail 
               recordDetail={recordDetail} 
-              onChange={this.onChange} 
-              onAddHeader={this.onAddHeader} 
-              onDeleteHeader = {this.onDelHeader}
               isEdit={this.state.isEdit}
-              addHeaders ={this.state.addHeaders.req}
-              delHeaders = {this.state.delHeaders.req}
               tabelHandleAdd = {this.tabelHandleAdd}
               tableHandleDelete = {this.tableHandleDelete}
               tableHandleCellChange = {this.tableHandleCellChange}
@@ -406,14 +230,14 @@ class RecordDetail extends React.Component {
           <Button className={Style.btn} onClick={this.onSave}>save</Button>
         </div>
         </div>
-        <div className={Style.detailWrapper} style={this.state.isEdit?{'width':'50%','float':'left'}:{}} >
+        <div className={Style.detailWrapper} >
           {fetchingRecord ? this.getLoaingDiv() : getMenuBody()}
         </div>
-        {this.state.isEdit && 
+        {/* {this.state.isEdit && 
           <div className={Style.editDetailWrapper} >
             {fetchingRecord ? this.getLoaingDiv() : getEditMenuBody()}
           </div>
-        }
+        } */}
       </div>
     );
   }
@@ -503,7 +327,7 @@ class RecordDetail extends React.Component {
     console.log('----------------------------->')
     console.log(this.state.bodyItem);
     console.log(this.state.originRecordDetail);
-    console.log(this.state.editRecordDetail);
+    // console.log(this.state.editRecordDetail);
     return (
       <ModalPanel
         onClose={this.onClose}
