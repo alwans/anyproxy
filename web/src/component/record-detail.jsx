@@ -25,6 +25,11 @@ const ProxyRecordType = {
   LOCAL_MAP:'LOCAL_MAP',
   REMOTE:'REMOTE'
 };
+const ItemTableMap = {
+  TABLE_HEADER:"TABLE_HEADER",
+  TABLE_BODY:"TABLE_BODY"
+}
+
 const Test_proxyList = {
   REWRITE:[{name:'rewire_1',disabled:true},{name:'rewire_2',disabled:false},{name:'rewire_3',disabled:false}],
   // LOCAL_MAP:[{name:'localMap_1'},{name:'localMap_2'},{name:'localMap_3'}],
@@ -78,17 +83,79 @@ class RecordDetail extends React.Component {
     this.setState({isEdit:true});
   }
 
-  tableHandleDelete = (key) => {
-    let bodyItem = Object.assign({},this.state.bodyItem);
-    let dataSource = [...bodyItem.req];
-    dataSource = dataSource.filter((item) => item.key !== key)
-    bodyItem.req = dataSource;
-    this.setState({
-      bodyItem: bodyItem,
-    });
+  
+
+  tableHandleDelete = (key,tableType) => {
+    switch(tableType){
+      case ItemTableMap.TABLE_HEADER:{
+        let headersItem = Object.assign({},this.state.headersItem);
+        headersItem = this.deleteHandle(key,headersItem);
+        this.setState({
+          headersItem: headersItem,
+        });
+        break;
+      }
+      case ItemTableMap.TABLE_BODY:{
+        let bodyItem = Object.assign({},this.state.bodyItem);
+        headersItem = this.deleteHandle(key,bodyItem);
+        this.setState({
+          bodyItem: bodyItem,
+        });
+        break;
+      }
+      default:{}
+    }
   };
 
-  tabelHandleAdd = () => {
+  deleteHandle(key,dataItem){
+    switch(this.state.pageIndex){
+      case PageIndexMap.REQUEST_INDEX:{
+        let dataSource = [...dataItem.req];
+        dataSource = dataSource.filter((item) => {item.key !== key})
+        dataItem.req = dataSource;
+        return dataItem;
+      }
+      case PageIndexMap.RESPONSE_INDEX:{
+        let dataSource = [...dataItem.res];
+        dataSource = dataSource.filter((item) => {item.key !== key})
+        dataItem.res = dataSource;
+        return dataItem;
+      }
+    }
+
+  }
+
+  getTargetList(dataItem){
+    switch(this.state.pageIndex){
+      case PageIndexMap.REQUEST_INDEX:{
+        return [...dataItem.req];
+      }
+      case PageIndexMap.RESPONSE_INDEX:{
+        return [...dataItem.res];
+      }
+    }
+  }
+
+  tabelHandleAdd = (tableType) => {
+    switch(tableType){
+      case ItemTableMap.TABLE_HEADER:{
+        let headersItem = Object.assign({},this.state.headersItem);
+        headersItem = this.deleteHandle(key,headersItem);
+        this.setState({
+          headersItem: headersItem,
+        });
+        break;
+      }
+      case ItemTableMap.TABLE_BODY:{
+        let bodyItem = Object.assign({},this.state.bodyItem);
+        headersItem = this.deleteHandle(key,bodyItem);
+        this.setState({
+          bodyItem: bodyItem,
+        });
+        break;
+      }
+      default:{}
+    }
     let bodyItem = Object.assign({},this.state.bodyItem);
     let dataSource = [...bodyItem.req];
     let newIndex = dataSource.length==0?1: dataSource.slice(-1)[0].key+1;
@@ -106,6 +173,7 @@ class RecordDetail extends React.Component {
 
   tableHandleCellChange = (key, dataIndex) => {
     return (value) =>{
+      console.log(value);
       let bodyItem = Object.assign({},this.state.bodyItem);
       let newData = [...bodyItem.req];
       const target = newData.find(item => item.key === key);

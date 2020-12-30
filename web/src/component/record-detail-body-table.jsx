@@ -1,6 +1,7 @@
 import { Table, Input, Select, Button, Popconfirm } from 'antd';
 import React from 'react';
 import Style from './record-detail-body-table.less';
+const Option = Select.Option;
 
 class EditableCell extends React.Component {
   constructor(props){
@@ -55,7 +56,7 @@ class EditableCell extends React.Component {
               />
             </div>
             :
-            <div className="editable-cell-text-wrapper" onClick ={this.edit}>
+            <div className="editable-cell-text-wrapper" onClick ={this.edit} style={{cursor:"pointer"}}>
               {value || 'click input text'}
             </div>
         }
@@ -108,9 +109,9 @@ class RecordDetailBodyTable extends React.Component {
       width:'5%',
       render: (text, record) => (
         <div>
-          <Select defaultValue="更新" >
-            <Option value="modify">更新</Option>
-            <Option value="update">新增</Option>
+          <Select defaultValue="更新" onChange={this.props.onCellChange(record.key,'headerType',record.tableType)}>
+            <Option value="update">更新</Option>
+            <Option value="add">新增</Option>
             <Option value="delete">删除</Option>
           </Select>
         </div>
@@ -122,7 +123,7 @@ class RecordDetailBodyTable extends React.Component {
       render: (text, record) => (
         <EditableCell
           value={text}
-          onChange={this.props.onCellChange(record.key, 'beforeData')}
+          onChange={this.props.onCellChange(record.key, 'headerName',record.tableType)}
         />
       ),
     },{
@@ -132,7 +133,7 @@ class RecordDetailBodyTable extends React.Component {
       render: (text, record) => (
         <EditableCell
           value={text}
-          onChange={this.props.onCellChange(record.key, 'beforeData')}
+          onChange={this.props.onCellChange(record.key, 'beforeData',record.tableType)}
         />
       ),
     }, {
@@ -142,7 +143,7 @@ class RecordDetailBodyTable extends React.Component {
       render: (text, record) => (
         <EditableCell
           value={text}
-          onChange={this.props.onCellChange(record.key, 'afterData')}
+          onChange={this.props.onCellChange(record.key, 'afterData',record.tableType)}
         />
       ),
     }, {
@@ -153,7 +154,7 @@ class RecordDetailBodyTable extends React.Component {
         return (
           this.props.dataSource.length > 1 ?
           (
-            <Popconfirm title="Sure to delete?" onConfirm={() => this.props.onDelete(record.key)}>
+            <Popconfirm title="Sure to delete?" onConfirm={() => this.props.onDelete(record.key,record.tableType)}>
               <a href="#">Delete</a>
             </Popconfirm>
           ) : null
@@ -168,7 +169,7 @@ class RecordDetailBodyTable extends React.Component {
     const columns = this.props.tableType==0?this.headerColumns:this.bodyColumns;
     return (
       <div>
-        <Button className={Style.editableAddBtn} onClick={this.props.handleAdd}>Add</Button>
+        <Button className={Style.editableAddBtn} onClick={this.props.handleAdd(tableType)}>Add</Button>
         <Table bordered dataSource={dataSource} columns={columns} pagination={false} />
       </div>
     );
