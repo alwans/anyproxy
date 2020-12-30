@@ -3,6 +3,12 @@ import React from 'react';
 import Style from './record-detail-body-table.less';
 const Option = Select.Option;
 
+const HeaderOperationMap ={
+  UPDATE:'更新',
+  ADD:'新增',
+  DELETE:'删除'
+}
+
 class EditableCell extends React.Component {
   constructor(props){
     super(props);
@@ -75,7 +81,7 @@ class RecordDetailBodyTable extends React.Component {
       render: (text, record) => (
         <EditableCell
           value={text}
-          onChange={this.props.onCellChange(record.key, 'beforeData')}
+          onChange={this.props.onCellChange(record.key, 'beforeData',record.tableType)}
         />
       ),
     }, {
@@ -85,7 +91,7 @@ class RecordDetailBodyTable extends React.Component {
       render: (text, record) => (
         <EditableCell
           value={text}
-          onChange={this.props.onCellChange(record.key, 'afterData')}
+          onChange={this.props.onCellChange(record.key, 'afterData',record.tableType)}
         />
       ),
     }, {
@@ -96,7 +102,7 @@ class RecordDetailBodyTable extends React.Component {
         return (
           this.props.dataSource.length > 1 ?
           (
-            <Popconfirm title="Sure to delete?" onConfirm={() => this.props.onDelete(record.key)}>
+            <Popconfirm title="Sure to delete?" onConfirm={() => this.props.onDelete(record.key,record.tableType)}>
               <a href="#">Delete</a>
             </Popconfirm>
           ) : null
@@ -109,10 +115,10 @@ class RecordDetailBodyTable extends React.Component {
       width:'5%',
       render: (text, record) => (
         <div>
-          <Select defaultValue="更新" onChange={this.props.onCellChange(record.key,'headerType',record.tableType)}>
-            <Option value="update">更新</Option>
-            <Option value="add">新增</Option>
-            <Option value="delete">删除</Option>
+          <Select defaultValue={HeaderOperationMap[record.headerType]} onChange={this.props.onCellChange(record.key,'headerType',record.tableType)}>
+            <Option value="UPDATE">更新</Option>
+            <Option value="ADD">新增</Option>
+            <Option value="DELETE">删除</Option>
           </Select>
         </div>
       ),
@@ -165,11 +171,12 @@ class RecordDetailBodyTable extends React.Component {
   render() {
     const dataSource  = this.props.dataSource;
     console.log('---------table------------------------------------------------------------------>');
+    console.log('tableType: ',this.props.tableType);
     console.log(dataSource);
-    const columns = this.props.tableType==0?this.headerColumns:this.bodyColumns;
+    const columns = this.props.tableType=='TABLE_HEADER'?this.headerColumns:this.bodyColumns;
     return (
       <div>
-        <Button className={Style.editableAddBtn} onClick={this.props.handleAdd(tableType)}>Add</Button>
+        <Button className={Style.editableAddBtn} onClick={() =>this.props.handleAdd(this.props.tableType)}>Add</Button>
         <Table bordered dataSource={dataSource} columns={columns} pagination={false} />
       </div>
     );

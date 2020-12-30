@@ -30,6 +30,12 @@ const ItemTableMap = {
   TABLE_BODY:"TABLE_BODY"
 }
 
+const HeaderOperationMap ={
+  UPDATE:'UPDATE',
+  ADD:'ADD',
+  DELETE:'DELETE'
+}
+
 const Test_proxyList = {
   REWRITE:[{name:'rewire_1',disabled:true},{name:'rewire_2',disabled:false},{name:'rewire_3',disabled:false}],
   // LOCAL_MAP:[{name:'localMap_1'},{name:'localMap_2'},{name:'localMap_3'}],
@@ -85,7 +91,7 @@ class RecordDetail extends React.Component {
 
   
 
-  tableHandleDelete = (key,tableType) => {
+  tableHandleDelete(key,tableType){
     switch(tableType){
       case ItemTableMap.TABLE_HEADER:{
         let headersItem = Object.assign({},this.state.headersItem);
@@ -97,7 +103,7 @@ class RecordDetail extends React.Component {
       }
       case ItemTableMap.TABLE_BODY:{
         let bodyItem = Object.assign({},this.state.bodyItem);
-        headersItem = this.deleteHandle(key,bodyItem);
+        bodyItem = this.deleteHandle(key,bodyItem);
         this.setState({
           bodyItem: bodyItem,
         });
@@ -108,16 +114,17 @@ class RecordDetail extends React.Component {
   };
 
   deleteHandle(key,dataItem){
+    console.log('key--------->',key);
     switch(this.state.pageIndex){
       case PageIndexMap.REQUEST_INDEX:{
         let dataSource = [...dataItem.req];
-        dataSource = dataSource.filter((item) => {item.key !== key})
+        dataSource = dataSource.filter((item) => item.key !== key);
         dataItem.req = dataSource;
         return dataItem;
       }
       case PageIndexMap.RESPONSE_INDEX:{
         let dataSource = [...dataItem.res];
-        dataSource = dataSource.filter((item) => {item.key !== key})
+        dataSource = dataSource.filter((item) => item.key !== key);
         dataItem.res = dataSource;
         return dataItem;
       }
@@ -136,11 +143,11 @@ class RecordDetail extends React.Component {
     }
   }
 
-  tabelHandleAdd = (tableType) => {
+  tabelHandleAdd(tableType){
     switch(tableType){
       case ItemTableMap.TABLE_HEADER:{
         let headersItem = Object.assign({},this.state.headersItem);
-        headersItem = this.deleteHandle(key,headersItem);
+        headersItem = this.addHeaderHandle(headersItem);
         this.setState({
           headersItem: headersItem,
         });
@@ -148,7 +155,7 @@ class RecordDetail extends React.Component {
       }
       case ItemTableMap.TABLE_BODY:{
         let bodyItem = Object.assign({},this.state.bodyItem);
-        headersItem = this.deleteHandle(key,bodyItem);
+        bodyItem = this.addBodyHanle(bodyItem);
         this.setState({
           bodyItem: bodyItem,
         });
@@ -156,41 +163,108 @@ class RecordDetail extends React.Component {
       }
       default:{}
     }
-    let bodyItem = Object.assign({},this.state.bodyItem);
-    let dataSource = [...bodyItem.req];
+  };
+
+  addHeaderHandle(dataItem){
+    switch(this.state.pageIndex){
+      case PageIndexMap.REQUEST_INDEX:{
+        let dataSource = [...dataItem.req];
+        dataItem.req = [...dataSource, this.addHeaderItem(dataSource)]
+        return dataItem;
+      }
+      case PageIndexMap.RESPONSE_INDEX:{
+        let dataSource = [...dataItem.res];
+        dataItem.res = [...dataSource, this.addHeaderItem(dataSource)]
+        return dataItem;
+      }
+    }
+  }
+
+  addHeaderItem(dataSource){
     let newIndex = dataSource.length==0?1: dataSource.slice(-1)[0].key+1;
     const newData = {
       key: newIndex,
+      tableType:ItemTableMap.TABLE_HEADER,
+      headerType: HeaderOperationMap.UPDATE,
+      headerName:'',
       beforeData: '',
       afterData: '',
       isDelete: false,
     };
-    bodyItem.req = [...dataSource, newData]
-    this.setState({
-      bodyItem:bodyItem,
-    });
-  };
+    return newData;
+  }
 
-  tableHandleCellChange = (key, dataIndex) => {
-    return (value) =>{
-      console.log(value);
-      let bodyItem = Object.assign({},this.state.bodyItem);
-      let newData = [...bodyItem.req];
-      const target = newData.find(item => item.key === key);
-      if(target){
-        target[dataIndex] = value;
-        bodyItem.req = [...newData]
-        this.setState({
-          bodyItem:bodyItem,
-        });
+  addBodyHanle(dataItem){
+    switch(this.state.pageIndex){
+      case PageIndexMap.REQUEST_INDEX:{
+        let dataSource = [...dataItem.req];
+        dataItem.req = [...dataSource, this.addBodyItem(dataSource)]
+        return dataItem;
       }
-      // newData.splice(index, 1, { ...item, ...row });
-      // bodyItem.req = [...newData]
-      // this.setState({
-      //   bodyItem:bodyItem,
-      // });
+      case PageIndexMap.RESPONSE_INDEX:{
+        let dataSource = [...dataItem.res];
+        dataItem.res = [...dataSource, this.addBodyItem(dataSource)]
+        return dataItem;
+      }
+    }
+  }
+  addBodyItem(dataSource){
+    let newIndex = dataSource.length==0?1: dataSource.slice(-1)[0].key+1;
+    const newData = {
+      key: newIndex,
+      tableType:ItemTableMap.TABLE_BODY,
+      beforeData: '',
+      afterData: '',
+      isDelete: false,
+    };
+    return newData;
+  }
+
+  tableHandleCellChange(key, dataIndex,tableType){
+    return (value) =>{
+      switch(tableType){
+        case ItemTableMap.TABLE_HEADER:{
+          let headersItem = Object.assign({},this.state.headersItem);
+          headersItem = this.cellHandle(key,dataIndex,headersItem,value);
+          this.setState({
+            headersItem:headersItem
+          });
+          break;
+        }
+        case ItemTableMap.TABLE_BODY:{
+          let bodyItem = Object.assign({},this.state.bodyItem);
+          bodyItem = this.cellHandle(key,dataIndex,bodyItem,value);
+          this.setState({
+            bodyItem:bodyItem
+          });
+          break;
+        }
+      }
     }
   };
+
+  cellHandle(key,dataIndex,dataItem,value){
+    switch(this.state.pageIndex){
+      case PageIndexMap.REQUEST_INDEX:{
+        let newData = [...dataItem.req];
+        const target = newData.find(item => item.key === key);
+        if(target){
+          target[dataIndex] = value;
+          dataItem.req = [...newData]
+        }
+        return dataItem;
+      }
+      case PageIndexMap.RESPONSE_INDEX:{
+        let newData = [...dataItem.res];
+        const target = newData.find(item => item.key === key);
+        if(target){
+          target[dataIndex] = value;
+          dataItem.res = [...newData]
+        }
+        return dataItem;
+      }
+    }
+  }
 
   notify(message, type = 'info', duration = 0.8, opts = {}) {
     notification[type]({ message, duration, ...opts })
@@ -221,6 +295,7 @@ class RecordDetail extends React.Component {
               tableHandleDelete = {this.tableHandleDelete}
               tableHandleCellChange = {this.tableHandleCellChange}
               bodyItem = {this.state.bodyItem.req}
+              headersItem = {this.state.headersItem.req}
             />;
   }
 
@@ -379,13 +454,14 @@ class RecordDetail extends React.Component {
         isEdit:false,
         originRecordDetail:JSON.parse(JSON.stringify(requestRecord.recordDetail)),
         editRecordDetail:JSON.parse(JSON.stringify(requestRecord.recordDetail)),
-        addHeaders:{req:[],res:[]}, //add headers key list obj
-        delHeaders:{req:[],res:[]},  //delete headers key list obj
-        updateHeaders:{req:[],res:[]}
+        bodyItem:{req:[],res:[]},
+        headersItem:{req:[],res:[]}
       });
     }else{
       this.setState({
-        isEdit:false
+        isEdit:false,
+        bodyItem:{req:[],res:[]}, 
+        headersItem:{req:[],res:[]}
       });
     }
     

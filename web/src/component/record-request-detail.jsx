@@ -219,8 +219,8 @@ class RecordRequestDetail extends React.Component {
           </ul>
           {this.state.isEdit?
             <RecordDetailBodyTable
-              tableType={0}
-              dataSource = {this.props.bodyItem}
+              tableType={'TABLE_HEADER'}
+              dataSource = {this.props.headersItem}
               onDelete = {this.props.tableHandleDelete}
               handleAdd = {this.props.tabelHandleAdd}
               onCellChange = {this.props.tableHandleCellChange}
@@ -242,7 +242,7 @@ class RecordRequestDetail extends React.Component {
           {this.getReqBodyDiv()}
           {this.state.isEdit?
             <RecordDetailBodyTable
-              tableType={1}
+              tableType={'TABLE_BODY'}
               dataSource = {this.props.bodyItem}
               onDelete = {this.props.tableHandleDelete}
               handleAdd = {this.props.tabelHandleAdd}
