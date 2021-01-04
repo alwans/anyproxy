@@ -9,6 +9,12 @@ const HeaderOperationMap ={
   DELETE:'删除'
 }
 
+const TableMap = {
+  TABLE_HEADER:"TABLE_HEADER",
+  TABLE_BODY:"TABLE_BODY",
+  TABLE_BASE:"TABLE_BASE"
+}
+
 class EditableCell extends React.Component {
   constructor(props){
     super(props);
@@ -100,7 +106,7 @@ class RecordDetailBodyTable extends React.Component {
       width:'10%',
       render: (text, record) => {
         return (
-          this.props.dataSource.length > 1 ?
+          this.props.dataSource.length > 0 ?
           (
             <Popconfirm title="Sure to delete?" onConfirm={() => this.props.onDelete(record.key,record.tableType)}>
               <a href="#">Delete</a>
@@ -122,20 +128,22 @@ class RecordDetailBodyTable extends React.Component {
           </Select>
         </div>
       ),
-    },{
-      title: '请求头名称',
-      dataIndex: 'headerName',
-      width: '15%',
-      render: (text, record) => (
-        <EditableCell
-          value={text}
-          onChange={this.props.onCellChange(record.key, 'headerName',record.tableType)}
-        />
-      ),
-    },{
+    }
+    // ,{
+    //   title: '请求头名称',
+    //   dataIndex: 'headerName',
+    //   width: '15%',
+    //   render: (text, record) => (
+    //     <EditableCell
+    //       value={text}
+    //       onChange={this.props.onCellChange(record.key, 'headerName',record.tableType)}
+    //     />
+    //   ),
+    // }
+    ,{
       title: '修改前数据',
       dataIndex: 'beforeData',
-      width: '35%',
+      width: '40%',
       render: (text, record) => (
         <EditableCell
           value={text}
@@ -145,7 +153,7 @@ class RecordDetailBodyTable extends React.Component {
     }, {
       title: '修改后数据',
       dataIndex: 'afterData',
-      width:'35%',
+      width:'45%',
       render: (text, record) => (
         <EditableCell
           value={text}
@@ -158,7 +166,42 @@ class RecordDetailBodyTable extends React.Component {
       width:'10%',
       render: (text, record) => {
         return (
-          this.props.dataSource.length > 1 ?
+          this.props.dataSource.length > 0 ?
+          (
+            <Popconfirm title="Sure to delete?" onConfirm={() => this.props.onDelete(record.key,record.tableType)}>
+              <a href="#">Delete</a>
+            </Popconfirm>
+          ) : null
+        );
+      },
+    }];
+    this.baseConfigColumes = [{
+      title: '修改前数据',
+      dataIndex: 'beforeData',
+      width: '45%',
+      render: (text, record) => (
+        <EditableCell
+          value={text}
+          onChange={this.props.onCellChange(record.key, 'beforeData',record.tableType)}
+        />
+      ),
+    }, {
+      title: '修改后数据',
+      dataIndex: 'afterData',
+      width:'45%',
+      render: (text, record) => (
+        <EditableCell
+          value={text}
+          onChange={this.props.onCellChange(record.key, 'afterData',record.tableType)}
+        />
+      ),
+    }, {
+      title: '操作',
+      dataIndex: 'isDelete',
+      width:'10%',
+      render: (text, record) => {
+        return (
+          this.props.dataSource.length > 0 ?
           (
             <Popconfirm title="Sure to delete?" onConfirm={() => this.props.onDelete(record.key,record.tableType)}>
               <a href="#">Delete</a>
@@ -170,10 +213,23 @@ class RecordDetailBodyTable extends React.Component {
   }
   render() {
     const dataSource  = this.props.dataSource;
-    console.log('---------table------------------------------------------------------------------>');
-    console.log('tableType: ',this.props.tableType);
-    console.log(dataSource);
-    const columns = this.props.tableType=='TABLE_HEADER'?this.headerColumns:this.bodyColumns;
+    // console.log(dataSource);
+    var columns;
+    switch(this.props.tableType){
+      case TableMap.TABLE_HEADER:
+        columns = this.headerColumns;
+        break;
+      case TableMap.TABLE_BODY:
+        columns = this.bodyColumns;
+        break;
+      case TableMap.TABLE_BASE:
+        columns = this.bodyColumns;
+        break;
+      default:
+        columns = this.bodyColumns;
+        break;
+    }
+    // columns = this.props.tableType=='TABLE_HEADER'?this.headerColumns:this.bodyColumns;
     return (
       <div>
         <Button className={Style.editableAddBtn} onClick={() =>this.props.handleAdd(this.props.tableType)}>Add</Button>

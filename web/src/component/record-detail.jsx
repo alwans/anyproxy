@@ -5,7 +5,7 @@
 
 import React, { PropTypes } from 'react';
 import ClassBind from 'classnames/bind';
-import { Menu, Dropdown,Spin,notification,message,Button,Input,Tag } from 'antd';
+import { Menu, Dropdown,Spin,notification,message,Button,Select,Tag } from 'antd';
 import ModalPanel from 'component/modal-panel';
 import RecordRequestDetail from 'component/record-request-detail';
 import RecordResponseDetail from 'component/record-response-detail';
@@ -14,6 +14,7 @@ import { hideRecordDetail } from 'action/recordAction';
 
 import Style from './record-detail.less';
 
+const Option = Select.Option;
 const StyleBind = ClassBind.bind(Style);
 const PageIndexMap = {
   REQUEST_INDEX: 'REQUEST_INDEX',
@@ -50,10 +51,11 @@ class RecordDetail extends React.Component {
     this.state = {
       pageIndex: PageIndexMap.REQUEST_INDEX,
       isEdit:false,  // page can be edited
+      editType:ProxyRecordType.REWRITE,
       originRecordDetail:null,  //origin or Before modification record detail
       editRecordDetail:null, //modified record detail
       bodyItem:{req:[],res:[]},   //obj-keys:[tableType,beforData,afterData,isDelete]
-      headersItem:{req:[],res:[]}  //obj-keys:[tableType,headerName,beforeData,afterData,isDelete]
+      headersItem:{req:[],res:[]},  //obj-keys:[tableType,headerName,beforeData,afterData,isDelete]
     };
     this.onSave = this.onSave.bind(this); 
     this.onEdit = this.onEdit.bind(this); 
@@ -71,13 +73,15 @@ class RecordDetail extends React.Component {
   }
   onSave(){
     this.setState({
-      isEdit:false
+      isEdit:false,
+      editType:ProxyRecordType.REWRITE,
     });
     this.notify('SAVE SUCCESS', 'success')
   }
-  onEdit(){ //edit btn -->onClick
+  onEdit(e){ //edit btn -->onClick
     this.setState({
-      isEdit:true
+      isEdit:true,
+      editType:e.key
     });
   }
   globalNotify(msg){
@@ -291,6 +295,7 @@ class RecordDetail extends React.Component {
     return <RecordRequestDetail 
               recordDetail={recordDetail} 
               isEdit={this.state.isEdit}
+              editType = {this.state.editType}
               tabelHandleAdd = {this.tabelHandleAdd}
               tableHandleDelete = {this.tableHandleDelete}
               tableHandleCellChange = {this.tableHandleCellChange}
@@ -331,34 +336,23 @@ class RecordDetail extends React.Component {
       return menuBody;
     }
 
-    const getEditMenuBody = () => {   //为了区分右边可编辑区域
-      let menuBody = null;
-      this.state.editRecordDetail.isEdit = true;
-      let newrecordDetail =  this.state.editRecordDetail;
-      switch (this.state.pageIndex) {
-        case PageIndexMap.REQUEST_INDEX: {
-          menuBody = this.getRequestDiv(newrecordDetail);
-          break;
-        }
-        case PageIndexMap.RESPONSE_INDEX: {
-          menuBody = this.getResponseDiv(newrecordDetail);
-          break;
-        }
-        case PageIndexMap.WEBSOCKET_INDEX: {
-          menuBody = this.getWsMessageDiv(newrecordDetail);
-          break;
-        }
-        default: {
-          menuBody = this.getRequestDiv(newrecordDetail);
-          break;
-        }
-      }
-      return menuBody;
-    }
-
     const websocketMenu = (
       <Menu.Item key={PageIndexMap.WEBSOCKET_INDEX}>WebSocket</Menu.Item>
     );
+
+    const editType =(
+      <Menu onClick={this.onEdit}>
+      <Menu.Item key={ProxyRecordType.REWRITE}>
+        <a href="#">rewrite</a>
+      </Menu.Item>
+      <Menu.Item key={ProxyRecordType.REMOTE}>
+        <a href="#">remote</a>
+      </Menu.Item>
+      <Menu.Item key={ProxyRecordType.LOCAL_MAP}>
+        <a href="#">local map</a>
+      </Menu.Item>
+    </Menu>
+    )
     return (
       <div className={Style.wrapper} >
         <div>
@@ -369,9 +363,13 @@ class RecordDetail extends React.Component {
           </Menu>
           {this.getProxyItemMenu(Test_proxyList)}
           <div className={Style.editWrapper}>
-          <Button className={Style.btn} onClick={this.onEdit}>edit</Button>
-          <Button className={Style.btn} onClick={this.onSave}>save</Button>
-        </div>
+            {this.state.isEdit && <strong style={{'padding-right':'10px','color':'red'}}>当前编辑模式：{this.state.editType}</strong>}
+            {/* <Button className={Style.btn} onClick={this.onEdit}>edit</Button> */}
+            <Dropdown overlay={editType}>
+              <Button className={Style.btn}>Edit</Button>
+            </Dropdown>
+            <Button className={Style.btn} onClick={this.onSave}>Save</Button>
+          </div>
         </div>
         <div className={Style.detailWrapper} >
           {fetchingRecord ? this.getLoaingDiv() : getMenuBody()}
@@ -469,7 +467,7 @@ class RecordDetail extends React.Component {
 
   render() {
     console.log('----------------------------->')
-    console.log(this.state.bodyItem);
+    console.log(this.state.editType);
     console.log(this.state.originRecordDetail);
     // console.log(this.state.editRecordDetail);
     return (

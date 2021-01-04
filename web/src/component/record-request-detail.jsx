@@ -217,7 +217,7 @@ class RecordRequestDetail extends React.Component {
           <ul className={Style.ulItem} >
             {this.getLiDivs(reqHeader)}
           </ul>
-          {this.state.isEdit?
+          {this.state.isEdit && this.props.editType=='REWRITE'?
             <RecordDetailBodyTable
               tableType={'TABLE_HEADER'}
               dataSource = {this.props.headersItem}
@@ -240,7 +240,7 @@ class RecordRequestDetail extends React.Component {
           </div>
           <div className={CommonStyle.whiteSpace10} />
           {this.getReqBodyDiv()}
-          {this.state.isEdit?
+          {this.state.isEdit && this.props.editType=='REWRITE'?
             <RecordDetailBodyTable
               tableType={'TABLE_BODY'}
               dataSource = {this.props.bodyItem}
