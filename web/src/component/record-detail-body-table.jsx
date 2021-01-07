@@ -347,7 +347,7 @@ class RecordDetailBodyTable extends React.Component {
         break;
       case TableMap.TABLE_BASE:
         let base_columns = [...this.baseConfigColumes];
-        console.log('this.props.editType--->',this.props.editType);
+        // console.log('this.props.editType--->',this.props.editType);
         if(this.props.editType=='REWRITE'){
           base_columns.map((item,index) =>{
             if(item.dataIndex=='remoteUrl'){

@@ -77,21 +77,20 @@ class RecordDetail extends React.Component {
     requestRecord: PropTypes.object
   }
   onSave(){
-    this.setState({
-      isEdit:false,
-      editType:ProxyRecordType.REWRITE,
-    });
+    if(!this.state.isEdit){
+      return ;
+    }
     let data;
     if(this.state.pageIndex==PageIndexMap.REQUEST_INDEX){
       data={
         recorderID: null,
         isReqData: 1,
-        urlDomain: this.props.requestRecord.recordDetail.host | '',
+        urlDomain: this.props.requestRecord.recordDetail.host,
         reqUrl: this.state.baseConfig.req[0].regexUrl,
         headerType: null,
         headerEnum: null,
-        originHeaderParam: this.state.headersItem.req.map(item =>{ let obj = {};let arr = item.beforeData.split(':') ;obj[arr[0]] = arr[1]; return obj}),
-        goalHeaderParam: this.state.headersItem.req.map(item =>{ let obj = {}; let arr = item.afterData.split(':') ;obj[arr[0]] = arr[1]; return obj}),
+        originHeaderParam: this.headerParamPrase('req','beforeData'),
+        goalHeaderParam: this.headerParamPrase('req','afterData'),
         httpStatusCode: null,
         bodyEnum: null,
         originBody: this.bodyParamParse('req','beforeData'),
@@ -105,23 +104,68 @@ class RecordDetail extends React.Component {
         IP: this.state.baseConfig.req[0].ipList,
         remark: '',
       };
+    }else{
+      data={
+        recorderID: null,
+        isReqData: 0,
+        urlDomain: this.props.requestRecord.recordDetail.host,
+        reqUrl: this.state.baseConfig.res[0].regexUrl,
+        headerType: null,
+        headerEnum: null,
+        originHeaderParam: this.headerParamPrase('res','beforeData'),
+        goalHeaderParam: this.headerParamPrase('res','afterData'),
+        httpStatusCode: null,
+        bodyEnum: null,
+        originBody: this.bodyParamParse('res','beforeData'),
+        goalBody: this.bodyParamParse('res','afterData'),
+        isGlobal: this.state.baseConfig.res[0].isGolbal==='yes'?1:0,
+        isDelete: this.state.baseConfig.res[0].isDisable === 'yes'? 1:0,
+        createTime: null,
+        modifyTime: null,
+        addUser: 'admin',
+        isLimitIP: this.state.baseConfig.res[0].isIpLimit=='yes'? 1:0,
+        IP: this.state.baseConfig.res[0].ipList,
+        remark: '',
+      };
     }
     console.log(data);
     this.notify('SAVE SUCCESS', 'success')
+    let new_dafaultBaseConfig = JSON.parse(JSON.stringify(defaultBaseConfig))
+    new_dafaultBaseConfig.req[0].regexUrl = this.props.requestRecord.recordDetail.path;
+    new_dafaultBaseConfig.res[0].regexUrl = this.props.requestRecord.recordDetail.path;
+    this.setState({
+      isEdit:false,
+      editType:ProxyRecordType.REWRITE,
+      baseConfig: new_dafaultBaseConfig,
+    });
   }
 
-  bodyParamParse(pageIndex,dataIndex){
+  headerParamPrase(pageIndex,dataIndex){//pageIndex:req/res ; dataIndex:befroeData/afterData
+    let arr = this.state.headersItem[pageIndex].map(item =>{
+      if(item[dataIndex]!==''){
+        let obj= {};
+        let var1 = item[dataIndex].split(':');
+        obj[var1[0].trim()] = var1[1].trim();
+        return obj;
+      }
+    }).filter(item => item!= void 0 );
+    return arr;
+  }
+
+  bodyParamParse(pageIndex,dataIndex){  //pageIndex:req/res ; dataIndex:befroeData/afterData
     if(this.props.requestRecord.recordDetail.method==='GET'){
       let arr =  this.state.bodyItem[pageIndex].map(item =>{
-        let a1 = item.split('=');
-        if(a1.length>1){
-          
+        let var1 = item[dataIndex].split('=');
+        if(var1.length>1){
+          let obj ={};
+          obj[var1[0].trim()] = var1[1].trim();
+          return obj;
         }
         return item[dataIndex]
       })
       return arr;
     }else{
-      let arr = this.state.bodyItem[pageIndex].mpa(item =>{
+      let arr = this.state.bodyItem[pageIndex].map(item =>{
         return item[dataIndex];
       });
       return arr.join('&');
@@ -207,6 +251,7 @@ class RecordDetail extends React.Component {
       case ItemTableMap.TABLE_BODY:{
         let bodyItem = Object.assign({},this.state.bodyItem);
         bodyItem = this.addBodyHanle(bodyItem);
+        console.log(bodyItem);
         this.setState({
           bodyItem: bodyItem,
         });
@@ -272,7 +317,7 @@ class RecordDetail extends React.Component {
   }
 
   tableHandleCellChange(key, dataIndex,tableType){
-    console.log(`----111---->key:${key}, dataIndex:${dataIndex}, tableType:${tableType}`);
+    // console.log(`----111---->key:${key}, dataIndex:${dataIndex}, tableType:${tableType}`);
     return (value) =>{
       switch(tableType){
         case ItemTableMap.TABLE_HEADER:{
@@ -362,7 +407,17 @@ class RecordDetail extends React.Component {
   }
 
   getResponseDiv(recordDetail) {
-    return <RecordResponseDetail recordDetail={recordDetail} />;
+    return <RecordResponseDetail 
+              recordDetail={recordDetail} 
+              isEdit={this.state.isEdit}
+              editType = {this.state.editType}
+              tabelHandleAdd = {this.tabelHandleAdd}
+              tableHandleDelete = {this.tableHandleDelete}
+              tableHandleCellChange = {this.tableHandleCellChange}
+              bodyItem = {this.state.bodyItem.res}
+              headersItem = {this.state.headersItem.res}
+              baseConfig = {this.state.baseConfig.res}
+            />;
   }
 
   getWsMessageDiv(recordDetail) {
@@ -494,8 +549,6 @@ class RecordDetail extends React.Component {
   }
 
   componentWillReceiveProps(nextProps) {
-    console.log('defaultConfig:---->');
-    console.log(defaultBaseConfig);
     const { requestRecord } = nextProps;
     const { pageIndex } = this.state;
     // if this is not websocket, reset the index to RESPONSE_INDEX
@@ -532,8 +585,8 @@ class RecordDetail extends React.Component {
 
   render() {
     console.log('----------------------------->')
-    console.log(this.state.baseConfig);
-    console.log(this.state.editType);
+    // console.log(this.state.baseConfig);
+    // console.log(this.state.editType);
     console.log(this.state.originRecordDetail);
     // console.log(this.state.editRecordDetail);
     return (
