@@ -28,7 +28,8 @@ const ProxyRecordType = {
 };
 const ItemTableMap = {
   TABLE_HEADER:"TABLE_HEADER",
-  TABLE_BODY:"TABLE_BODY"
+  TABLE_BODY:"TABLE_BODY",
+  TABLE_BASE:"TABLE_BASE"
 }
 
 const HeaderOperationMap ={
@@ -44,6 +45,9 @@ const Test_proxyList = {
   REMOTE:[{name:'remote_1',disabled:false},{name:'remote_2',disabled:true},{name:'remote_3',disabled:false}]
 };
 
+const defaultBaseConfig = {req:[{key:0,regexUrl:'',isGolbal:'no',isDisable:'no',isIpLimit:'no',ipList:'',remoteUrl:'',tableType:ItemTableMap.TABLE_BASE}],
+                           res:[{key:0,regexUrl:'',isGolbal:'no',isDisable:'no',isIpLimit:'no',ipList:'',remoteUrl:'',tableType:ItemTableMap.TABLE_BASE}]};
+
 class RecordDetail extends React.Component {
   constructor() {
     super();
@@ -56,6 +60,7 @@ class RecordDetail extends React.Component {
       editRecordDetail:null, //modified record detail
       bodyItem:{req:[],res:[]},   //obj-keys:[tableType,beforData,afterData,isDelete]
       headersItem:{req:[],res:[]},  //obj-keys:[tableType,headerName,beforeData,afterData,isDelete]
+      baseConfig: defaultBaseConfig,
     };
     this.onSave = this.onSave.bind(this); 
     this.onEdit = this.onEdit.bind(this); 
@@ -76,7 +81,51 @@ class RecordDetail extends React.Component {
       isEdit:false,
       editType:ProxyRecordType.REWRITE,
     });
+    let data;
+    if(this.state.pageIndex==PageIndexMap.REQUEST_INDEX){
+      data={
+        recorderID: null,
+        isReqData: 1,
+        urlDomain: this.props.requestRecord.recordDetail.host | '',
+        reqUrl: this.state.baseConfig.req[0].regexUrl,
+        headerType: null,
+        headerEnum: null,
+        originHeaderParam: this.state.headersItem.req.map(item =>{ let obj = {};let arr = item.beforeData.split(':') ;obj[arr[0]] = arr[1]; return obj}),
+        goalHeaderParam: this.state.headersItem.req.map(item =>{ let obj = {}; let arr = item.afterData.split(':') ;obj[arr[0]] = arr[1]; return obj}),
+        httpStatusCode: null,
+        bodyEnum: null,
+        originBody: this.bodyParamParse('req','beforeData'),
+        goalBody: this.bodyParamParse('req','afterData'),
+        isGlobal: this.state.baseConfig.req[0].isGolbal==='yes'?1:0,
+        isDelete: this.state.baseConfig.req[0].isDisable === 'yes'? 1:0,
+        createTime: null,
+        modifyTime: null,
+        addUser: 'admin',
+        isLimitIP: this.state.baseConfig.req[0].isIpLimit=='yes'? 1:0,
+        IP: this.state.baseConfig.req[0].ipList,
+        remark: '',
+      };
+    }
+    console.log(data);
     this.notify('SAVE SUCCESS', 'success')
+  }
+
+  bodyParamParse(pageIndex,dataIndex){
+    if(this.props.requestRecord.recordDetail.method==='GET'){
+      let arr =  this.state.bodyItem[pageIndex].map(item =>{
+        let a1 = item.split('=');
+        if(a1.length>1){
+          
+        }
+        return item[dataIndex]
+      })
+      return arr;
+    }else{
+      let arr = this.state.bodyItem[pageIndex].mpa(item =>{
+        return item[dataIndex];
+      });
+      return arr.join('&');
+    }
   }
   onEdit(e){ //edit btn -->onClick
     this.setState({
@@ -92,8 +141,6 @@ class RecordDetail extends React.Component {
     // console.log(e);
     this.setState({isEdit:true});
   }
-
-  
 
   tableHandleDelete(key,tableType){
     switch(tableType){
@@ -225,6 +272,7 @@ class RecordDetail extends React.Component {
   }
 
   tableHandleCellChange(key, dataIndex,tableType){
+    console.log(`----111---->key:${key}, dataIndex:${dataIndex}, tableType:${tableType}`);
     return (value) =>{
       switch(tableType){
         case ItemTableMap.TABLE_HEADER:{
@@ -240,6 +288,14 @@ class RecordDetail extends React.Component {
           bodyItem = this.cellHandle(key,dataIndex,bodyItem,value);
           this.setState({
             bodyItem:bodyItem
+          });
+          break;
+        }
+        case ItemTableMap.TABLE_BASE:{
+          let baseConfig = Object.assign({},this.state.baseConfig);
+          baseConfig =  this.cellHandle(key,dataIndex,baseConfig,value);
+          this.setState({
+            baseConfig: baseConfig
           });
           break;
         }
@@ -301,6 +357,7 @@ class RecordDetail extends React.Component {
               tableHandleCellChange = {this.tableHandleCellChange}
               bodyItem = {this.state.bodyItem.req}
               headersItem = {this.state.headersItem.req}
+              baseConfig = {this.state.baseConfig.req}
             />;
   }
 
@@ -363,7 +420,7 @@ class RecordDetail extends React.Component {
           </Menu>
           {this.getProxyItemMenu(Test_proxyList)}
           <div className={Style.editWrapper}>
-            {this.state.isEdit && <strong style={{'padding-right':'10px','color':'red'}}>当前编辑模式：{this.state.editType}</strong>}
+            {this.state.isEdit && <strong style={{'paddingRight':'10px','color':'red'}}>当前编辑模式：{this.state.editType}</strong>}
             {/* <Button className={Style.btn} onClick={this.onEdit}>edit</Button> */}
             <Dropdown overlay={editType}>
               <Button className={Style.btn}>Edit</Button>
@@ -437,6 +494,8 @@ class RecordDetail extends React.Component {
   }
 
   componentWillReceiveProps(nextProps) {
+    console.log('defaultConfig:---->');
+    console.log(defaultBaseConfig);
     const { requestRecord } = nextProps;
     const { pageIndex } = this.state;
     // if this is not websocket, reset the index to RESPONSE_INDEX
@@ -448,18 +507,24 @@ class RecordDetail extends React.Component {
     console.log('11111111111111111');
     console.log(requestRecord);
     if(requestRecord.recordDetail !=null && (this.state.originRecordDetail==null || this.state.originRecordDetail.id!=requestRecord.recordDetail.id)){
+      // let new_dafaultBaseConfig = Object.assign({},defaultBaseConfig);
+      let new_dafaultBaseConfig = JSON.parse(JSON.stringify(defaultBaseConfig))
+      new_dafaultBaseConfig.req[0].regexUrl = requestRecord.recordDetail.path;
+      new_dafaultBaseConfig.res[0].regexUrl = requestRecord.recordDetail.path;
       this.setState({
         isEdit:false,
         originRecordDetail:JSON.parse(JSON.stringify(requestRecord.recordDetail)),
         editRecordDetail:JSON.parse(JSON.stringify(requestRecord.recordDetail)),
         bodyItem:{req:[],res:[]},
-        headersItem:{req:[],res:[]}
+        headersItem:{req:[],res:[]},
+        baseConfig: new_dafaultBaseConfig,
       });
     }else{
       this.setState({
         isEdit:false,
         bodyItem:{req:[],res:[]}, 
-        headersItem:{req:[],res:[]}
+        headersItem:{req:[],res:[]},
+        baseConfig: JSON.parse(JSON.stringify(defaultBaseConfig)),
       });
     }
     
@@ -467,6 +532,7 @@ class RecordDetail extends React.Component {
 
   render() {
     console.log('----------------------------->')
+    console.log(this.state.baseConfig);
     console.log(this.state.editType);
     console.log(this.state.originRecordDetail);
     // console.log(this.state.editRecordDetail);

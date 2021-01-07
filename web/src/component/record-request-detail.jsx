@@ -208,6 +208,16 @@ class RecordRequestDetail extends React.Component {
               </span>
             </li>
           </ul>
+          {this.state.isEdit && 
+            <RecordDetailBodyTable
+              tableType={'TABLE_BASE'}
+              editType= {this.props.editType}
+              dataSource = {this.props.baseConfig}
+              onDelete = {this.props.tableHandleDelete}
+              handleAdd = {this.props.tabelHandleAdd}
+              onCellChange = {this.props.tableHandleCellChange}
+            />
+          }
         </div>
         <div className={Style.section}>
           <div >
