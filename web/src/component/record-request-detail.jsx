@@ -5,7 +5,8 @@
 
 import React, { PropTypes } from 'react';
 import ClassBind from 'classnames/bind';
-import { Menu, Table, notification, Spin, Button,Input } from 'antd';
+import { Menu, Table, notification, Collapse  } from 'antd';
+const Panel = Collapse.Panel;
 import clipboard from 'clipboard-js'
 import JsonViewer from 'component/json-viewer';
 import ModalPanel from 'component/modal-panel';
@@ -209,14 +210,18 @@ class RecordRequestDetail extends React.Component {
             </li>
           </ul>
           {this.state.isEdit && 
-            <RecordDetailBodyTable
-              tableType={'TABLE_BASE'}
-              editType= {this.props.editType}
-              dataSource = {this.props.baseConfig}
-              onDelete = {this.props.tableHandleDelete}
-              handleAdd = {this.props.tabelHandleAdd}
-              onCellChange = {this.props.tableHandleCellChange}
-            />
+            <Collapse accordion>
+              <Panel header="base config" key="1">
+                <RecordDetailBodyTable
+                  tableType={'TABLE_BASE'}
+                  editType= {this.props.editType}
+                  dataSource = {this.props.baseConfig}
+                  onDelete = {this.props.tableHandleDelete}
+                  handleAdd = {this.props.tabelHandleAdd}
+                  onCellChange = {this.props.tableHandleCellChange}
+                />
+              </Panel>
+          </Collapse>
           }
         </div>
         <div className={Style.section}>
@@ -227,14 +232,26 @@ class RecordRequestDetail extends React.Component {
           <ul className={Style.ulItem} >
             {this.getLiDivs(reqHeader)}
           </ul>
-          {this.state.isEdit && this.props.editType=='REWRITE'?
-            <RecordDetailBodyTable
-              tableType={'TABLE_HEADER'}
-              dataSource = {this.props.headersItem}
-              onDelete = {this.props.tableHandleDelete}
-              handleAdd = {this.props.tabelHandleAdd}
-              onCellChange = {this.props.tableHandleCellChange}
-            />:null}
+          {this.state.isEdit && this.props.editType=='REWRITE' &&
+              <Collapse accordion>
+                <Panel header="headers config" key="1">
+                  <RecordDetailBodyTable
+                    tableType={'TABLE_HEADER'}
+                    dataSource = {this.props.headersItem}
+                    onDelete = {this.props.tableHandleDelete}
+                    handleAdd = {this.props.tabelHandleAdd}
+                    onCellChange = {this.props.tableHandleCellChange}
+                  />
+                </Panel>
+              </Collapse>
+            // <RecordDetailBodyTable
+            //   tableType={'TABLE_HEADER'}
+            //   dataSource = {this.props.headersItem}
+            //   onDelete = {this.props.tableHandleDelete}
+            //   handleAdd = {this.props.tabelHandleAdd}
+            //   onCellChange = {this.props.tableHandleCellChange}
+            // />
+            }
         </div>
 
         <div className={Style.section + ' ' + Style.noBorder} >
@@ -250,14 +267,26 @@ class RecordRequestDetail extends React.Component {
           </div>
           <div className={CommonStyle.whiteSpace10} />
           {this.getReqBodyDiv()}
-          {this.state.isEdit && this.props.editType=='REWRITE'?
-            <RecordDetailBodyTable
-              tableType={'TABLE_BODY'}
-              dataSource = {this.props.bodyItem}
-              onDelete = {this.props.tableHandleDelete}
-              handleAdd = {this.props.tabelHandleAdd}
-              onCellChange = {this.props.tableHandleCellChange}
-            />:null}
+          {this.state.isEdit && this.props.editType=='REWRITE' &&
+            <Collapse accordion>
+              <Panel header="body config" key="1">
+                <RecordDetailBodyTable
+                  tableType={'TABLE_BODY'}
+                  dataSource = {this.props.bodyItem}
+                  onDelete = {this.props.tableHandleDelete}
+                  handleAdd = {this.props.tabelHandleAdd}
+                  onCellChange = {this.props.tableHandleCellChange}
+                />
+              </Panel>
+            </Collapse>
+            // <RecordDetailBodyTable
+            //   tableType={'TABLE_BODY'}
+            //   dataSource = {this.props.bodyItem}
+            //   onDelete = {this.props.tableHandleDelete}
+            //   handleAdd = {this.props.tabelHandleAdd}
+            //   onCellChange = {this.props.tableHandleCellChange}
+            // />
+          }
         </div>
       </div>
     );

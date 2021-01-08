@@ -153,7 +153,7 @@ class RecordDetail extends React.Component {
   }
 
   bodyParamParse(pageIndex,dataIndex){  //pageIndex:req/res ; dataIndex:befroeData/afterData
-    if(this.props.requestRecord.recordDetail.method==='GET'){
+    if(this.props.requestRecord.recordDetail.method==='GET' && pageIndex==='req'){
       let arr =  this.state.bodyItem[pageIndex].map(item =>{
         let var1 = item[dataIndex].split('=');
         if(var1.length>1){

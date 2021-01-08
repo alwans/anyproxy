@@ -348,7 +348,7 @@ class RecordDetailBodyTable extends React.Component {
       case TableMap.TABLE_BASE:
         let base_columns = [...this.baseConfigColumes];
         // console.log('this.props.editType--->',this.props.editType);
-        if(this.props.editType=='REWRITE'){
+        if(this.props.editType!=='REMOTE'){
           base_columns.map((item,index) =>{
             if(item.dataIndex=='remoteUrl'){
               base_columns.splice(index,1);
@@ -371,7 +371,7 @@ class RecordDetailBodyTable extends React.Component {
 
     // columns = this.props.tableType=='TABLE_HEADER'?this.headerColumns:this.bodyColumns;
     return (
-      <div>
+      <div className={Style.editTableContainer}>
         {this.props.tableType!=TableMap.TABLE_BASE && <Button className={Style.editableAddBtn} onClick={() =>this.props.handleAdd(this.props.tableType)}>Add</Button>}
         <Table bordered dataSource={dataSource} columns={columns} pagination={false} />
       </div>
