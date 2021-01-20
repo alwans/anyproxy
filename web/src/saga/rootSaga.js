@@ -86,6 +86,10 @@ function * doToggleRemoteGlobalProxy(flag) {
   }
 }
 
+function * doSaveRuleInfo(ruleObj){
+  yield call(postJSON, '/api/saveRuleInfo', ruleObj);
+}
+
 function * fetchRequestSaga() {
   while (true) {
     yield take(FETCH_REQUEST_LOG);
@@ -144,6 +148,13 @@ function * toggleRemoteGlobalProxySaga() {
   }
 }
 
+function * saveRuleInfo(){
+  while (true) {
+    const action = yield take();
+    yield fork(doSaveRuleInfo,action.data);
+  }
+}
+
 export default function* root() {
   yield fork(fetchRequestSaga);
   yield fork(clearRequestRecordSaga);
@@ -153,4 +164,6 @@ export default function* root() {
   yield fork(fetchRecordBodySaga);
   yield fork(toggleRemoteInterceptHttpsSaga);
   yield fork(toggleRemoteGlobalProxySaga);
+  //新增的--wl
+  yield fork(saveRuleInfo);
 }
