@@ -7,6 +7,10 @@ export const FETCH_RECORD_DETAIL = 'FETCH_RECORD_DETAIL';
 export const SHOW_RECORD_DETAIL = 'SHOW_RECORD_DETAIL';
 export const HIDE_RECORD_DETAIL = 'HIDE_RECORD_DETAIL';
 export const UPDATE_MULTIPLE_RECORDS = 'UPDATE_MULTIPLE_RECORDS';
+//新增---wl
+export const FETCH_PROXY_RULE_LIST = 'FETCH_PROXY_RULE_LIST'; 
+export const SAVE_PROXY_RULE_INFO = 'SAVE_PROXY_RULE_INFO';
+export const DELETE_PROXY_RULE_INFO = 'DELETE_PROXY_RULE_INFO';
 
 export function fetchRequestLog() {
     return {
@@ -67,3 +71,24 @@ export function updateMultipleRecords (records) {
     };
 }
 
+//新增----wl
+export function saveProxyRuleInfo(ruleObj){
+    return {
+        type: SAVE_PROXY_RULE_INFO,
+        data: ruleObj
+    }
+}
+
+export function fetchProxyRuleList(urlPath){
+    return {
+        type: FETCH_PROXY_RULE_LIST,
+        data: urlPath
+    }
+}
+
+export function deleteProxyRuleInfo(ruleId){
+    return {
+        type: DELETE_PROXY_RULE_INFO,
+        data: ruleId
+    }
+}

@@ -10,7 +10,7 @@ import ModalPanel from 'component/modal-panel';
 import RecordRequestDetail from 'component/record-request-detail';
 import RecordResponseDetail from 'component/record-response-detail';
 import RecordWsMessageDetail from 'component/record-ws-message-detail';
-import { hideRecordDetail } from 'action/recordAction';
+import { hideRecordDetail, saveProxyRuleInfo } from 'action/recordAction';
 
 import Style from './record-detail.less';
 
@@ -133,6 +133,10 @@ class RecordDetail extends React.Component {
     let new_dafaultBaseConfig = JSON.parse(JSON.stringify(defaultBaseConfig))
     new_dafaultBaseConfig.req[0].regexUrl = this.props.requestRecord.recordDetail.path;
     new_dafaultBaseConfig.res[0].regexUrl = this.props.requestRecord.recordDetail.path;
+    let ruleObj = {};
+    ruleObj.type= 'REWRITE';
+    ruleObj.ruleInfo= data;
+    this.props.dispatch(saveProxyRuleInfo(ruleObj));
     this.setState({
       isEdit:false,
       editType:ProxyRecordType.REWRITE,

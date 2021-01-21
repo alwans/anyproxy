@@ -12,7 +12,9 @@ import {
   FETCH_RECORD_DETAIL,
   clearAllLocalRecord,
   updateWholeRequest,
-  showRecordDetail
+  showRecordDetail,
+  //新增--wl
+  SAVE_PROXY_RULE_INFO
 } from 'action/recordAction';
 
 import {
@@ -86,8 +88,9 @@ function * doToggleRemoteGlobalProxy(flag) {
   }
 }
 
-function * doSaveRuleInfo(ruleObj){
-  yield call(postJSON, '/api/saveRuleInfo', ruleObj);
+function * doSaveProxyRuleInfo(ruleObj){
+  // yield call(postJSON, '/api/saveRuleInfo', ruleObj);
+  console.log('run doSaveProxyRuleInfo...,ruleObj: ',ruleObj);
 }
 
 function * fetchRequestSaga() {
@@ -148,10 +151,11 @@ function * toggleRemoteGlobalProxySaga() {
   }
 }
 
-function * saveRuleInfo(){
+//新增---wl
+function * saveProxyRuleInfoSage(){
   while (true) {
-    const action = yield take();
-    yield fork(doSaveRuleInfo,action.data);
+    const action = yield take(SAVE_PROXY_RULE_INFO);
+    yield fork(doSaveProxyRuleInfo,action.data);
   }
 }
 
@@ -165,5 +169,5 @@ export default function* root() {
   yield fork(toggleRemoteInterceptHttpsSaga);
   yield fork(toggleRemoteGlobalProxySaga);
   //新增的--wl
-  yield fork(saveRuleInfo);
+  yield fork(saveProxyRuleInfoSage);
 }

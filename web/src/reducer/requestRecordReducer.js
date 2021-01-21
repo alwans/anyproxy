@@ -1,6 +1,8 @@
 const defaultState = {
     recordList: [],
-    recordDetail: null
+    recordDetail: null,
+    //新增---wl
+    recordProxyRuleList:[],
 };
 
 import {
@@ -9,7 +11,9 @@ import {
     CLEAR_ALL_LOCAL_RECORD,
     UPDATE_MULTIPLE_RECORDS,
     SHOW_RECORD_DETAIL,
-    HIDE_RECORD_DETAIL
+    HIDE_RECORD_DETAIL,
+    //新增---wl
+    SAVE_PROXY_RULE_INFO
 } from 'action/recordAction';
 
 const getRecordInList = function (recordId, recordList) {
