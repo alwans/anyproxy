@@ -17,6 +17,7 @@ import {
   FETCH_PROXY_RULE_LIST,
   SAVE_PROXY_RULE_INFO,
   DELETE_PROXY_RULE_INFO,
+  fetchProxyRuleList,
   updateProxyRuleList,
 
 } from 'action/recordAction';

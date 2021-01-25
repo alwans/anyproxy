@@ -10,7 +10,7 @@ import ModalPanel from 'component/modal-panel';
 import RecordRequestDetail from 'component/record-request-detail';
 import RecordResponseDetail from 'component/record-response-detail';
 import RecordWsMessageDetail from 'component/record-ws-message-detail';
-import { hideRecordDetail, saveProxyRuleInfo } from 'action/recordAction';
+import { hideRecordDetail, saveProxyRuleInfo, fetchProxyRuleList } from 'action/recordAction';
 
 import Style from './record-detail.less';
 
@@ -50,7 +50,7 @@ const defaultBaseConfig = {req:[{key:0,regexUrl:'',isGolbal:'no',isDisable:'no',
 
 class RecordDetail extends React.Component {
   constructor() {
-    super();a
+    super();
     this.onClose = this.onClose.bind(this);
     this.state = {
       pageIndex: PageIndexMap.REQUEST_INDEX,
@@ -78,7 +78,26 @@ class RecordDetail extends React.Component {
   }
   onSave(){
     if(!this.state.isEdit){
+      this.notify('请先编辑', 'error')
       return ;
+    }else{
+      let flag = true;
+      if(this.state.editType === ProxyRecordType.REWRITE){
+        if(JSON.stringify(this.state.headersItem) === '{"req":[],"res":[]}' && 
+            JSON.stringify(this.state.bodyItem) === '{"req":[],"res":[]}'){
+
+              this.notify('请编辑内容后再点击保存', 'error')
+              return ;
+        }
+
+      }else if(this.state.editType === ProxyRecordType.REMOTE){
+        this.state.baseConfig.req[0].remoteUrl==='' || this.state.baseConfig.res[0].remoteUrl==='' ? flag = true : flag=false;
+        if(flag){
+          this.notify('请先编辑remoteUrl', 'error')
+          return ;
+        }
+      }
+
     }
     let data ;
     if(this.state.pageIndex==PageIndexMap.REQUEST_INDEX){
@@ -139,6 +158,7 @@ class RecordDetail extends React.Component {
     ruleObj.type= 'REWRITE';
     ruleObj.ruleInfo= data;
     this.props.dispatch(saveProxyRuleInfo(ruleObj));
+    this.props.dispatch(fetchProxyRuleList(ruleObj.isReqData, ruleObj.urlDomain, ruleObj.reqUrl));
     this.setState({
       isEdit:false,
       editType:ProxyRecordType.REWRITE,
@@ -449,7 +469,8 @@ class RecordDetail extends React.Component {
             <Menu.Item key={PageIndexMap.RESPONSE_INDEX}>Response</Menu.Item>
             {this.hasWebSocket(recordDetail) ? websocketMenu : null}
           </Menu>
-          {this.getProxyItemMenu(Test_proxyList)}
+          {/* {this.getProxyItemMenu(Test_proxyList)} */}
+          {this.getProxyItemMenu(this.props.requestRecord.recordProxyRuleList)}
           <div className={Style.editWrapper}>
             {this.state.isEdit && <strong style={{'paddingRight':'10px','color':'red'}}>当前编辑模式：{this.state.editType}</strong>}
             {/* <Button className={Style.btn} onClick={this.onEdit}>edit</Button> */}

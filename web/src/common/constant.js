@@ -5,6 +5,5 @@
 module.exports.MenuKeyMap = {
     RECORD_FILTER: 'RECORD_FILTER',
     MAP_LOCAL: 'MAP_LOCAL',
-    ROOT_CA: 'ROOT_CA',
-    DEBUG_LIST:'DEBUG_LIST'
+    ROOT_CA: 'ROOT_CA'
 };

@@ -80,7 +80,7 @@ export function saveProxyRuleInfo(ruleObj){
     }
 }
 
-export function fetchProxyRuleList(reqType,urlHost,urlPath){  //reqType: req | res 
+export function fetchProxyRuleList(reqType,urlHost,urlPath){  //reqType: req:1 | res:0 
     let params = {
         reqType: reqType,
         urlHost: urlHost,

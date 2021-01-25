@@ -2,7 +2,7 @@ const defaultState = {
     recordList: [],
     recordDetail: null,
     //新增---wl
-    recordProxyRuleList:{},
+    recordProxyRuleList:  {REWRITE: [],LOCAL_MAP: [], REMOTE: []},
 };
 
 import {
