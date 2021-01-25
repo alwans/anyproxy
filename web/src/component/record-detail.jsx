@@ -50,7 +50,7 @@ const defaultBaseConfig = {req:[{key:0,regexUrl:'',isGolbal:'no',isDisable:'no',
 
 class RecordDetail extends React.Component {
   constructor() {
-    super();
+    super();a
     this.onClose = this.onClose.bind(this);
     this.state = {
       pageIndex: PageIndexMap.REQUEST_INDEX,
@@ -80,50 +80,52 @@ class RecordDetail extends React.Component {
     if(!this.state.isEdit){
       return ;
     }
-    let data;
+    let data ;
     if(this.state.pageIndex==PageIndexMap.REQUEST_INDEX){
       data={
         recorderID: null,
+        method: this.props.requestRecord.recordDetail.method,
         isReqData: 1,
         urlDomain: this.props.requestRecord.recordDetail.host,
         reqUrl: this.state.baseConfig.req[0].regexUrl,
         headerType: null,
         headerEnum: null,
-        originHeaderParam: this.headerParamPrase('req','beforeData'),
-        goalHeaderParam: this.headerParamPrase('req','afterData'),
+        originHeaderParam: this.state.headersItem.req,
+        targetHeaderParam: this.state.headersItem.req,
         httpStatusCode: null,
         bodyEnum: null,
-        originBody: this.bodyParamParse('req','beforeData'),
-        goalBody: this.bodyParamParse('req','afterData'),
-        isGlobal: this.state.baseConfig.req[0].isGolbal==='yes'?1:0,
-        isDelete: this.state.baseConfig.req[0].isDisable === 'yes'? 1:0,
-        createTime: null,
-        modifyTime: null,
+        originBody: this.state.bodyItem.req,
+        targetBody: this.state.bodyItem.req,
+        isGlobal: this.state.baseConfig.req[0].isGolbal,
+        isDelete: this.state.baseConfig.req[0].isDisable,
+        createTime: new Date().getTime(),
+        modifyTime: new Date().getTime(),
         addUser: 'admin',
-        isLimitIP: this.state.baseConfig.req[0].isIpLimit=='yes'? 1:0,
+        isLimitIP: this.state.baseConfig.req[0].isIpLimit,
         IP: this.state.baseConfig.req[0].ipList,
         remark: '',
       };
     }else{
       data={
         recorderID: null,
+        method: this.props.requestRecord.recordDetail.method,
         isReqData: 0,
         urlDomain: this.props.requestRecord.recordDetail.host,
         reqUrl: this.state.baseConfig.res[0].regexUrl,
         headerType: null,
         headerEnum: null,
-        originHeaderParam: this.headerParamPrase('res','beforeData'),
-        goalHeaderParam: this.headerParamPrase('res','afterData'),
+        originHeaderParam: this.state.headersItem.res,
+        targetHeaderParam: this.state.headersItem.res,
         httpStatusCode: null,
         bodyEnum: null,
-        originBody: this.bodyParamParse('res','beforeData'),
-        goalBody: this.bodyParamParse('res','afterData'),
-        isGlobal: this.state.baseConfig.res[0].isGolbal==='yes'?1:0,
-        isDelete: this.state.baseConfig.res[0].isDisable === 'yes'? 1:0,
-        createTime: null,
-        modifyTime: null,
+        originBody: this.state.bodyItem.res,
+        targetBody: this.state.bodyItem.res,
+        isGlobal: this.state.baseConfig.res[0].isGolbal,
+        isDelete: this.state.baseConfig.res[0].isDisable,
+        createTime: new Date().getTime(),
+        modifyTime: new Date().getTime(),
         addUser: 'admin',
-        isLimitIP: this.state.baseConfig.res[0].isIpLimit=='yes'? 1:0,
+        isLimitIP: this.state.baseConfig.res[0].isIpLimit,
         IP: this.state.baseConfig.res[0].ipList,
         remark: '',
       };
@@ -144,37 +146,7 @@ class RecordDetail extends React.Component {
     });
   }
 
-  headerParamPrase(pageIndex,dataIndex){//pageIndex:req/res ; dataIndex:befroeData/afterData
-    let arr = this.state.headersItem[pageIndex].map(item =>{
-      if(item[dataIndex]!==''){
-        let obj= {};
-        let var1 = item[dataIndex].split(':');
-        obj[var1[0].trim()] = var1[1].trim();
-        return obj;
-      }
-    }).filter(item => item!= void 0 );
-    return arr;
-  }
 
-  bodyParamParse(pageIndex,dataIndex){  //pageIndex:req/res ; dataIndex:befroeData/afterData
-    if(this.props.requestRecord.recordDetail.method==='GET' && pageIndex==='req'){
-      let arr =  this.state.bodyItem[pageIndex].map(item =>{
-        let var1 = item[dataIndex].split('=');
-        if(var1.length>1){
-          let obj ={};
-          obj[var1[0].trim()] = var1[1].trim();
-          return obj;
-        }
-        return item[dataIndex]
-      })
-      return arr;
-    }else{
-      let arr = this.state.bodyItem[pageIndex].map(item =>{
-        return item[dataIndex];
-      });
-      return arr.join('&');
-    }
-  }
   onEdit(e){ //edit btn -->onClick
     this.setState({
       isEdit:true,

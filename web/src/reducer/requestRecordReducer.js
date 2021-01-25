@@ -2,7 +2,7 @@ const defaultState = {
     recordList: [],
     recordDetail: null,
     //新增---wl
-    recordProxyRuleList:[],
+    recordProxyRuleList:{},
 };
 
 import {
@@ -13,7 +13,7 @@ import {
     SHOW_RECORD_DETAIL,
     HIDE_RECORD_DETAIL,
     //新增---wl
-    SAVE_PROXY_RULE_INFO
+    UPDATE_PROXY_RULE_LIST,
 } from 'action/recordAction';
 
 const getRecordInList = function (recordId, recordList) {
@@ -112,6 +112,12 @@ function requestListReducer (state = defaultState, action) {
         case HIDE_RECORD_DETAIL: {
             const newState = Object.assign({}, state);
             newState.recordDetail = null;
+            return newState;
+        }
+
+        case UPDATE_PROXY_RULE_LIST: {
+            const newState = Object.assign({}, state);
+            newState.recordProxyRuleList = action.data;
             return newState;
         }
 

@@ -14,7 +14,11 @@ import {
   updateWholeRequest,
   showRecordDetail,
   //新增--wl
-  SAVE_PROXY_RULE_INFO
+  FETCH_PROXY_RULE_LIST,
+  SAVE_PROXY_RULE_INFO,
+  DELETE_PROXY_RULE_INFO,
+  updateProxyRuleList,
+
 } from 'action/recordAction';
 
 import {
@@ -88,10 +92,17 @@ function * doToggleRemoteGlobalProxy(flag) {
   }
 }
 
+//新增--wl
 function * doSaveProxyRuleInfo(ruleObj){
-  // yield call(postJSON, '/api/saveRuleInfo', ruleObj);
-  console.log('run doSaveProxyRuleInfo...,ruleObj: ',ruleObj);
+  yield call(postJSON, '/api/saveRuleInfo', ruleObj);
+  // yield put(updateProxyRuleList(data.proxyRuleList));
 }
+
+function * doFetchProxyRuleList(paramObj){
+  const data = yield call(getJSON, '/api/fetchProxyRuleList', paramObj);
+  yield put(updateProxyRuleList(data.proxyRuleList));
+}
+
 
 function * fetchRequestSaga() {
   while (true) {
@@ -159,6 +170,13 @@ function * saveProxyRuleInfoSage(){
   }
 }
 
+function * fetchProxyRuleListSaga(){
+  while (true) {
+    const action = yield take(FETCH_PROXY_RULE_LIST);
+    yield fork(doFetchProxyRuleList(action.data));
+  }
+}
+
 export default function* root() {
   yield fork(fetchRequestSaga);
   yield fork(clearRequestRecordSaga);
@@ -170,4 +188,5 @@ export default function* root() {
   yield fork(toggleRemoteGlobalProxySaga);
   //新增的--wl
   yield fork(saveProxyRuleInfoSage);
+  yield fork(fetchProxyRuleListSaga);
 }

@@ -11,6 +11,7 @@ export const UPDATE_MULTIPLE_RECORDS = 'UPDATE_MULTIPLE_RECORDS';
 export const FETCH_PROXY_RULE_LIST = 'FETCH_PROXY_RULE_LIST'; 
 export const SAVE_PROXY_RULE_INFO = 'SAVE_PROXY_RULE_INFO';
 export const DELETE_PROXY_RULE_INFO = 'DELETE_PROXY_RULE_INFO';
+export const UPDATE_PROXY_RULE_LIST = 'UPDATE_PROXY_RULE_LIST';
 
 export function fetchRequestLog() {
     return {
@@ -79,10 +80,22 @@ export function saveProxyRuleInfo(ruleObj){
     }
 }
 
-export function fetchProxyRuleList(urlPath){
+export function fetchProxyRuleList(reqType,urlHost,urlPath){  //reqType: req | res 
+    let params = {
+        reqType: reqType,
+        urlHost: urlHost,
+        urlPath: urlPath
+    };
     return {
         type: FETCH_PROXY_RULE_LIST,
-        data: urlPath
+        data: params
+    }
+}
+
+export function updateProxyRuleList(proxyRuleList){
+    return {
+        type: UPDATE_PROXY_RULE_LIST,
+        data: proxyRuleList
     }
 }
 
