@@ -21,7 +21,7 @@ const PageIndexMap = {
   RESPONSE_INDEX: 'RESPONSE_INDEX',
   WEBSOCKET_INDEX: 'WEBSOCKET_INDEX'
 };
-const ProxyRecordType = {
+const ProxyRecordTypeMap = {
   REWRITE:'REWRITE',
   LOCAL_MAP:'LOCAL_MAP',
   REMOTE:'REMOTE'
@@ -54,13 +54,14 @@ class RecordDetail extends React.Component {
     this.onClose = this.onClose.bind(this);
     this.state = {
       pageIndex: PageIndexMap.REQUEST_INDEX,
-      isEdit:false,  // page can be edited
-      editType:ProxyRecordType.REWRITE,
-      originRecordDetail:null,  //origin or Before modification record detail
-      editRecordDetail:null, //modified record detail
-      bodyItem:{req:[],res:[]},   //obj-keys:[tableType,beforData,afterData,isDelete]
-      headersItem:{req:[],res:[]},  //obj-keys:[tableType,headerName,beforeData,afterData,isDelete]
+      isEdit: false,  // page can be edited
+      editType: ProxyRecordTypeMap.REWRITE,
+      originRecord: null,  //origin or Before modification record detail
+      editRecordDetail: null, //modified record detail
+      bodyItem: {req:[],res:[]},   //obj-keys:[tableType,beforData,afterData,isDelete]
+      headersItem: {req:[],res:[]},  //obj-keys:[tableType,headerName,beforeData,afterData,isDelete]
       baseConfig: defaultBaseConfig,
+      ruleInfo_id: null,
     };
     this.onSave = this.onSave.bind(this); 
     this.onEdit = this.onEdit.bind(this); 
@@ -82,7 +83,7 @@ class RecordDetail extends React.Component {
       return ;
     }else{
       let flag = true;
-      if(this.state.editType === ProxyRecordType.REWRITE){
+      if(this.state.editType === ProxyRecordTypeMap.REWRITE){
         if(JSON.stringify(this.state.headersItem) === '{"req":[],"res":[]}' && 
             JSON.stringify(this.state.bodyItem) === '{"req":[],"res":[]}'){
 
@@ -90,7 +91,7 @@ class RecordDetail extends React.Component {
               return ;
         }
 
-      }else if(this.state.editType === ProxyRecordType.REMOTE){
+      }else if(this.state.editType === ProxyRecordTypeMap.REMOTE){
         this.state.baseConfig.req[0].remoteUrl==='' || this.state.baseConfig.res[0].remoteUrl==='' ? flag = true : flag=false;
         if(flag){
           this.notify('请先编辑remoteUrl', 'error')
@@ -99,78 +100,82 @@ class RecordDetail extends React.Component {
       }
 
     }
-    let data ;
+    let data = {
+      id: this.state.ruleInfo_id,
+      recorderID: null,
+      method: this.props.requestRecord.recordDetail.method,
+      urlDomain: this.props.requestRecord.recordDetail.host,
+      headerType: null,
+      headerEnum: null,
+      httpStatusCode: null,
+      bodyEnum: null,
+      createTime: new Date().getTime(),
+      modifyTime: new Date().getTime(),
+      addUser: 'admin',
+      remark: '',
+    };
+    let o1;
     if(this.state.pageIndex==PageIndexMap.REQUEST_INDEX){
-      data={
-        recorderID: null,
-        method: this.props.requestRecord.recordDetail.method,
+      o1 = {
         isReqData: 1,
-        urlDomain: this.props.requestRecord.recordDetail.host,
         reqUrl: this.state.baseConfig.req[0].regexUrl,
-        headerType: null,
-        headerEnum: null,
         originHeaderParam: this.state.headersItem.req,
         targetHeaderParam: this.state.headersItem.req,
-        httpStatusCode: null,
-        bodyEnum: null,
         originBody: this.state.bodyItem.req,
         targetBody: this.state.bodyItem.req,
         isGlobal: this.state.baseConfig.req[0].isGolbal,
         isDelete: this.state.baseConfig.req[0].isDisable,
-        createTime: new Date().getTime(),
-        modifyTime: new Date().getTime(),
-        addUser: 'admin',
         isLimitIP: this.state.baseConfig.req[0].isIpLimit,
         IP: this.state.baseConfig.req[0].ipList,
-        remark: '',
       };
     }else{
-      data={
-        recorderID: null,
-        method: this.props.requestRecord.recordDetail.method,
+      o1 = {
         isReqData: 0,
-        urlDomain: this.props.requestRecord.recordDetail.host,
         reqUrl: this.state.baseConfig.res[0].regexUrl,
-        headerType: null,
-        headerEnum: null,
         originHeaderParam: this.state.headersItem.res,
         targetHeaderParam: this.state.headersItem.res,
-        httpStatusCode: null,
-        bodyEnum: null,
         originBody: this.state.bodyItem.res,
         targetBody: this.state.bodyItem.res,
         isGlobal: this.state.baseConfig.res[0].isGolbal,
         isDelete: this.state.baseConfig.res[0].isDisable,
-        createTime: new Date().getTime(),
-        modifyTime: new Date().getTime(),
-        addUser: 'admin',
         isLimitIP: this.state.baseConfig.res[0].isIpLimit,
         IP: this.state.baseConfig.res[0].ipList,
-        remark: '',
       };
     }
+    data = Object.assign(data,o1);
     console.log(data);
     this.notify('SAVE SUCCESS', 'success')
     let new_dafaultBaseConfig = JSON.parse(JSON.stringify(defaultBaseConfig))
     new_dafaultBaseConfig.req[0].regexUrl = this.props.requestRecord.recordDetail.path;
     new_dafaultBaseConfig.res[0].regexUrl = this.props.requestRecord.recordDetail.path;
-    let ruleObj = {};
-    ruleObj.type= 'REWRITE';
-    ruleObj.ruleInfo= data;
+    let ruleObj = {
+      type: this.state.editType,
+      ruleInfo: data,
+      originRecord: this.state.originRecord
+    };
     this.props.dispatch(saveProxyRuleInfo(ruleObj));
-    this.props.dispatch(fetchProxyRuleList(ruleObj.isReqData, ruleObj.urlDomain, ruleObj.reqUrl));
+    setTimeout(() =>{ //保存还未成功，就获取结束了
+      // this.props.dispatch(fetchProxyRuleList(data.isReqData, data.urlDomain, data.reqUrl)); 
+    },500);
     this.setState({
       isEdit:false,
-      editType:ProxyRecordType.REWRITE,
+      editType:ProxyRecordTypeMap.REWRITE,
       baseConfig: new_dafaultBaseConfig,
     });
   }
 
 
   onEdit(e){ //edit btn -->onClick
+    let new_dafaultBaseConfig = JSON.parse(JSON.stringify(defaultBaseConfig))
+    new_dafaultBaseConfig.req[0].regexUrl = this.state.originRecord.path.split('?')[0];
+    new_dafaultBaseConfig.res[0].regexUrl = this.state.originRecord.path.split('?')[0];
     this.setState({
       isEdit:true,
-      editType:e.key
+      editType:e.key,
+      bodyItem: {req:[],res:[]},
+      headersItem: {req:[],res:[]},
+      baseConfig: new_dafaultBaseConfig,
+      ruleInfo_id: null,
     });
   }
   globalNotify(msg){
@@ -179,7 +184,34 @@ class RecordDetail extends React.Component {
   onClickItem(e){
     // console.log('-->click item');
     // console.log(e);
-    this.setState({isEdit:true});
+    // console.log(e.key);
+    let new_editType = ProxyRecordTypeMap.REWRITE;
+    const recordProxyRuleList = this.props.requestRecord.recordProxyRuleList;
+    Object.keys(recordProxyRuleList).map(key =>{
+      if(recordProxyRuleList[key].includes(e.item.props.data)){
+        new_editType = key;
+      }
+    })
+    let data = e.item.props.data;
+    let ruleInfo = data.ruleInfo;
+    // console.log(ruleInfo);
+    this.setState({
+      isEdit:true,
+      editType: new_editType,
+      bodyItem: {req:[],res:[]},   //obj-keys:[tableType,beforData,afterData,isDelete]
+      headersItem: {req:[],res:[]},  //obj-keys:[tableType,headerName,beforeData,afterData,isDelete]
+      baseConfig: {req:[],res:[]},
+      ruleInfo_id: data.dataId,
+    },function(){    //table渲染异常，所以每次更新前先清空所有table，然后通过回调再更新需要的table数据
+      this.setState({
+        isEdit:true,
+        editType: new_editType,
+        headersItem: ruleInfo.headersItem,
+        bodyItem: ruleInfo.bodyItem,
+        baseConfig: ruleInfo.baseConfig,
+        ruleInfo_id: data.dataId,
+      });
+    });
   }
 
   tableHandleDelete(key,tableType){
@@ -450,13 +482,13 @@ class RecordDetail extends React.Component {
 
     const editType =(
       <Menu onClick={this.onEdit}>
-      <Menu.Item key={ProxyRecordType.REWRITE}>
+      <Menu.Item key={ProxyRecordTypeMap.REWRITE}>
         <a href="#">rewrite</a>
       </Menu.Item>
-      <Menu.Item key={ProxyRecordType.REMOTE}>
+      <Menu.Item key={ProxyRecordTypeMap.REMOTE}>
         <a href="#">remote</a>
       </Menu.Item>
-      <Menu.Item key={ProxyRecordType.LOCAL_MAP}>
+      <Menu.Item key={ProxyRecordTypeMap.LOCAL_MAP}>
         <a href="#">local map</a>
       </Menu.Item>
     </Menu>
@@ -492,9 +524,9 @@ class RecordDetail extends React.Component {
     );
   }
   getProxyItemMenu (proxyRecord){
-    let rewriteList = proxyRecord[ProxyRecordType.REWRITE] || [];
-    let localMapList = proxyRecord[ProxyRecordType.LOCAL_MAP] || [];
-    let remoteList = proxyRecord[ProxyRecordType.REMOTE] || [];
+    let rewriteList = proxyRecord[ProxyRecordTypeMap.REWRITE] || [];
+    let localMapList = proxyRecord[ProxyRecordTypeMap.LOCAL_MAP] || [];
+    let remoteList = proxyRecord[ProxyRecordTypeMap.REMOTE] || [];
     return(
       <div className={Style.tagWarpper}>
         {rewriteList.length>0 && 
@@ -519,7 +551,7 @@ class RecordDetail extends React.Component {
     return (
       <Menu onClick={this.onClickItem}>
         {proxyRecordList.map((v,id) =>{
-          return <Menu.Item key={v.name} disabled={v.disabled}>{v.name}</Menu.Item>
+          return <Menu.Item key={v.name} disabled={v.disabled} data={v}>{v.name}</Menu.Item>
         })}
       </Menu>
     )
@@ -554,37 +586,43 @@ class RecordDetail extends React.Component {
         pageIndex: PageIndexMap.RESPONSE_INDEX
       });
     }
-    console.log('11111111111111111');
-    console.log(requestRecord);
-    if(requestRecord.recordDetail !=null && (this.state.originRecordDetail==null || this.state.originRecordDetail.id!=requestRecord.recordDetail.id)){
+    if(requestRecord.recordDetail !=null && (this.state.originRecord==null || this.state.originRecord.id!=requestRecord.recordDetail.id)){
+      console.log('11111111111111111');
+      console.log(requestRecord);
       // let new_dafaultBaseConfig = Object.assign({},defaultBaseConfig);
       let new_dafaultBaseConfig = JSON.parse(JSON.stringify(defaultBaseConfig))
-      new_dafaultBaseConfig.req[0].regexUrl = requestRecord.recordDetail.path;
-      new_dafaultBaseConfig.res[0].regexUrl = requestRecord.recordDetail.path;
+      new_dafaultBaseConfig.req[0].regexUrl = requestRecord.recordDetail.path.split('?')[0];
+      new_dafaultBaseConfig.res[0].regexUrl = requestRecord.recordDetail.path.split('?')[0];
       this.setState({
         isEdit:false,
-        originRecordDetail:JSON.parse(JSON.stringify(requestRecord.recordDetail)),
+        originRecord:JSON.parse(JSON.stringify(requestRecord.recordDetail)),
         editRecordDetail:JSON.parse(JSON.stringify(requestRecord.recordDetail)),
         bodyItem:{req:[],res:[]},
         headersItem:{req:[],res:[]},
-        baseConfig: new_dafaultBaseConfig,
+        baseConfig: {req:[],res:[]},
+      },function (){
+        this.setState({
+          baseConfig: new_dafaultBaseConfig
+        });
       });
     }else{
-      this.setState({
-        isEdit:false,
-        bodyItem:{req:[],res:[]}, 
-        headersItem:{req:[],res:[]},
-        baseConfig: JSON.parse(JSON.stringify(defaultBaseConfig)),
-      });
+      // this.setState({
+      //   isEdit:false,
+      //   bodyItem:{req:[],res:[]}, 
+      //   headersItem:{req:[],res:[]},
+      //   baseConfig: JSON.parse(JSON.stringify(defaultBaseConfig)),
+      // });
     }
     
   }
 
   render() {
-    console.log('----------------------------->')
+    console.log('---------------run record_detail-------------->')
     // console.log(this.state.baseConfig);
+    // console.log(this.state.headersItem);
+    // console.log(this.state.bodyItem);
     // console.log(this.state.editType);
-    console.log(this.state.originRecordDetail);
+    // console.log(this.state.originRecord);
     // console.log(this.state.editRecordDetail);
     return (
       <ModalPanel

@@ -210,8 +210,8 @@ class RecordRequestDetail extends React.Component {
             </li>
           </ul>
           {this.state.isEdit && 
-            <Collapse accordion>
-              <Panel header="base config" key="1">
+            // <Collapse accordion></Collapse>
+              // <Panel header="base config" key="1"></Panel>
                 <RecordDetailBodyTable
                   tableType={'TABLE_BASE'}
                   editType= {this.props.editType}
@@ -220,8 +220,8 @@ class RecordRequestDetail extends React.Component {
                   handleAdd = {this.props.tabelHandleAdd}
                   onCellChange = {this.props.tableHandleCellChange}
                 />
-              </Panel>
-          </Collapse>
+              
+          
           }
         </div>
         <div className={Style.section}>
@@ -233,8 +233,8 @@ class RecordRequestDetail extends React.Component {
             {this.getLiDivs(reqHeader)}
           </ul>
           {this.state.isEdit && this.props.editType=='REWRITE' &&
-              <Collapse accordion>
-                <Panel header="headers config" key="1">
+              // <Collapse accordion></Collapse>
+                // <Panel header="headers config" key="1"></Panel>
                   <RecordDetailBodyTable
                     tableType={'TABLE_HEADER'}
                     dataSource = {this.props.headersItem}
@@ -242,8 +242,8 @@ class RecordRequestDetail extends React.Component {
                     handleAdd = {this.props.tabelHandleAdd}
                     onCellChange = {this.props.tableHandleCellChange}
                   />
-                </Panel>
-              </Collapse>
+                
+              
             // <RecordDetailBodyTable
             //   tableType={'TABLE_HEADER'}
             //   dataSource = {this.props.headersItem}
@@ -268,8 +268,8 @@ class RecordRequestDetail extends React.Component {
           <div className={CommonStyle.whiteSpace10} />
           {this.getReqBodyDiv()}
           {this.state.isEdit && this.props.editType=='REWRITE' &&
-            <Collapse accordion>
-              <Panel header="body config" key="1">
+            // <Collapse accordion></Collapse>
+              // <Panel header="body config" key="1"></Panel>
                 <RecordDetailBodyTable
                   tableType={'TABLE_BODY'}
                   dataSource = {this.props.bodyItem}
@@ -277,8 +277,8 @@ class RecordRequestDetail extends React.Component {
                   handleAdd = {this.props.tabelHandleAdd}
                   onCellChange = {this.props.tableHandleCellChange}
                 />
-              </Panel>
-            </Collapse>
+              
+            
             // <RecordDetailBodyTable
             //   tableType={'TABLE_BODY'}
             //   dataSource = {this.props.bodyItem}

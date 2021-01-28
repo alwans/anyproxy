@@ -272,7 +272,7 @@ class RecordDetailBodyTable extends React.Component {
       width: '5%',
       render: (text, record) => (
         <div>
-          <Select defaultValue={text=='yes'?'是':'否'} onChange={this.props.onCellChange(record.key,'isDisable',record.tableType)}>
+          <Select style={text==='yes'?{color:'red'}:{color:'black'}} defaultValue={text=='yes'?'是':'否'} onChange={this.props.onCellChange(record.key,'isDisable',record.tableType)}>
             <Option value='yes'>是</Option>
             <Option value='no'>否</Option>
           </Select>
@@ -336,7 +336,6 @@ class RecordDetailBodyTable extends React.Component {
   }
   render() {
     const dataSource  = this.props.dataSource;
-    // console.log(dataSource);
     var columns;
     switch(this.props.tableType){
       case TableMap.TABLE_HEADER:
@@ -355,7 +354,7 @@ class RecordDetailBodyTable extends React.Component {
             }
           });
         }
-        if(dataSource[0].isIpLimit=='no'){
+        if(JSON.stringify(dataSource)==='[]' || dataSource[0].isIpLimit=='no'){
           base_columns.map((item,index) =>{
             if(item.dataIndex=='ipList'){
               base_columns.splice(index,1);

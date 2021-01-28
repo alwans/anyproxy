@@ -57,7 +57,7 @@ function* doFetchRecordBody(recordId) {
   // const recordBody = { id: recordId };
   yield put(updateFechingRecordStatus(true));
   const recordBody = yield call(getJSON, '/fetchBody', { id: recordId });
-  console.log('recordBody = ',recordBody);
+  console.log('recordBody = ',JSON.stringify(recordBody));
   if (recordBody.method && recordBody.method.toLowerCase() === 'websocket') {
     recordBody.wsMessages = yield call(getJSON, '/fetchWsMessages', { id: recordId});
   }
@@ -65,6 +65,7 @@ function* doFetchRecordBody(recordId) {
 
   yield put(updateFechingRecordStatus(false));
   yield put(updateActiveRecordItem(recordId));
+
   yield put(showRecordDetail(recordBody));
 }
 
@@ -97,10 +98,17 @@ function * doToggleRemoteGlobalProxy(flag) {
 function * doSaveProxyRuleInfo(ruleObj){
   yield call(postJSON, '/api/saveRuleInfo', ruleObj);
   // yield put(updateProxyRuleList(data.proxyRuleList));
+  let params = {
+    reqType: ruleObj.ruleInfo.isReqData,
+    urlHost: ruleObj.ruleInfo.urlDomain,
+    urlPath: ruleObj.ruleInfo.reqUrl
+  };
+  yield fork(doFetchProxyRuleList, params);
 }
 
 function * doFetchProxyRuleList(paramObj){
   const data = yield call(getJSON, '/api/fetchProxyRuleList', paramObj);
+  console.log('data.proxyRuleList================>',data.proxyRuleList);
   yield put(updateProxyRuleList(data.proxyRuleList));
 }
 
@@ -174,7 +182,7 @@ function * saveProxyRuleInfoSage(){
 function * fetchProxyRuleListSaga(){
   while (true) {
     const action = yield take(FETCH_PROXY_RULE_LIST);
-    yield fork(doFetchProxyRuleList(action.data));
+    yield fork(doFetchProxyRuleList, action.data);
   }
 }
 

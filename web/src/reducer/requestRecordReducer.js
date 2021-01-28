@@ -22,7 +22,7 @@ const getRecordInList = function (recordId, recordList) {
         const record = newRecordList[i];
         if (record.id === recordId) {
             return record;
-        }
+        } 
     }
 };
 

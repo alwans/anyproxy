@@ -7,7 +7,7 @@ import { Icon } from 'antd';
 import RecordRow from 'component/record-row';
 import Style from './record-panel.less';
 import ClassBind from 'classnames/bind';
-import { fetchRecordDetail } from 'action/recordAction';
+import { fetchRecordDetail, fetchProxyRuleList } from 'action/recordAction';
 
 const StyleBind = ClassBind.bind(Style);
 
@@ -36,7 +36,17 @@ class RecordPanel extends React.Component {
   }
 
   getRecordDetail(id) {
+    const { data: recordList } = this.props;
     this.props.dispatch(fetchRecordDetail(id));
+    let currentActiveRecord = null;
+    recordList.map(item =>{ //暂时这样写，数据量特别大的时候，可能会比较慢
+      if(item.id==id){
+        currentActiveRecord = item;
+      }
+    });
+    if(currentActiveRecord!=null){
+      this.props.dispatch(fetchProxyRuleList(1, currentActiveRecord.host, currentActiveRecord.path));
+    }
     this.props.stopRefresh();
   }
 

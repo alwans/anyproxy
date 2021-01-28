@@ -86,6 +86,7 @@ export function fetchProxyRuleList(reqType,urlHost,urlPath){  //reqType: req:1 |
         urlHost: urlHost,
         urlPath: urlPath
     };
+    console.log('run fetchProxyRuleList------->',params);
     return {
         type: FETCH_PROXY_RULE_LIST,
         data: params
