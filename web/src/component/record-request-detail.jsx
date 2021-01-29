@@ -175,7 +175,7 @@ class RecordRequestDetail extends React.Component {
     const cookieString = reqHeader.cookie || reqHeader.Cookie;
     delete reqHeader.cookie; // cookie will be displayed seperately
 
-    const { protocol, host, path } = recordDetail;
+    const { protocol, host, path, clientIp } = recordDetail;
     return (
       <div>
         <div className={Style.section} >
@@ -184,6 +184,10 @@ class RecordRequestDetail extends React.Component {
           </div>
           <div className={CommonStyle.whiteSpace10} />
           <ul className={Style.ulItem} >
+            <li className={Style.liItem} >
+              <strong>ClientIP:</strong>
+              <span >{clientIp}</span>
+            </li>
             <li className={Style.liItem} >
               <strong>Method:</strong>
               {/* {this.props.isEdit?<span><Input defaultValue={recordDetail.method} key='Method' onChange={this.props.onChange}/></span>:<span>{recordDetail.method} </span>} */}

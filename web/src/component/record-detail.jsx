@@ -117,7 +117,7 @@ class RecordDetail extends React.Component {
     let o1;
     if(this.state.pageIndex==PageIndexMap.REQUEST_INDEX){
       o1 = {
-        isReqData: 1,
+        isReqData: true,
         reqUrl: this.state.baseConfig.req[0].regexUrl,
         originHeaderParam: this.state.headersItem.req,
         targetHeaderParam: this.state.headersItem.req,
@@ -130,7 +130,7 @@ class RecordDetail extends React.Component {
       };
     }else{
       o1 = {
-        isReqData: 0,
+        isReqData: false,
         reqUrl: this.state.baseConfig.res[0].regexUrl,
         originHeaderParam: this.state.headersItem.res,
         targetHeaderParam: this.state.headersItem.res,
@@ -194,6 +194,17 @@ class RecordDetail extends React.Component {
     })
     let data = e.item.props.data;
     let ruleInfo = data.ruleInfo;
+    if(this.state.pageIndex === PageIndexMap.RESPONSE_INDEX){
+      if(!ruleInfo.headersItem.res.length && !ruleInfo.bodyItem.res.length){
+        this.notify('该规则未设置响应信息处理，请切换请求页面查看', 'error')
+        return ;
+      }
+    }else{
+      if(!ruleInfo.headersItem.req.length && !ruleInfo.bodyItem.req.length && ruleInfo.baseConfig.req[0].remoteUrl===''){
+        this.notify('该规则未设置请求信息处理，请切换响应页面查看', 'error')
+        return ;
+      }
+    }
     // console.log(ruleInfo);
     this.setState({
       isEdit:true,

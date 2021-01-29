@@ -113,6 +113,10 @@ class RecordResponseDetail extends React.Component {
               <strong>Status Code:</strong>
               <span className={statusStyle} > {recordDetail.statusCode} </span>
             </li>
+            <li className={Style.liItem} >
+              <strong>ClientIP:</strong>
+              <span >{recordDetail.clientIp}</span>
+            </li>
           </ul>
           {this.state.isEdit && 
             <RecordDetailBodyTable
