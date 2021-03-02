@@ -101,7 +101,7 @@ function * doSaveProxyRuleInfo(ruleObj){
   let params = {
     reqType: ruleObj.ruleInfo.isReqData,
     urlHost: ruleObj.ruleInfo.urlDomain,
-    urlPath: ruleObj.ruleInfo.reqUrl
+    urlPath: ruleObj.originRecord.path
   };
   yield fork(doFetchProxyRuleList, params);
 }

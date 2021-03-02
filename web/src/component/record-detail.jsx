@@ -92,7 +92,7 @@ class RecordDetail extends React.Component {
         }
 
       }else if(this.state.editType === ProxyRecordTypeMap.REMOTE){
-        this.state.baseConfig.req[0].remoteUrl==='' || this.state.baseConfig.res[0].remoteUrl==='' ? flag = true : flag=false;
+        this.state.baseConfig.req[0].remoteUrl==='' && this.state.baseConfig.res[0].remoteUrl==='' ? flag = true : flag=false;
         if(flag){
           this.notify('请先编辑remoteUrl', 'error')
           return ;
@@ -113,6 +113,7 @@ class RecordDetail extends React.Component {
       modifyTime: new Date().getTime(),
       addUser: 'admin',
       remark: '',
+      remoteUrl: this.state.baseConfig.req[0].remoteUrl || '',
     };
     let o1;
     if(this.state.pageIndex==PageIndexMap.REQUEST_INDEX){
@@ -142,7 +143,7 @@ class RecordDetail extends React.Component {
         IP: this.state.baseConfig.res[0].ipList,
       };
     }
-    data = Object.assign(data,o1);
+    data = Object.assign(data, o1);
     console.log(data);
     this.notify('SAVE SUCCESS', 'success')
     let new_dafaultBaseConfig = JSON.parse(JSON.stringify(defaultBaseConfig))
